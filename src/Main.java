@@ -37,6 +37,7 @@ public class Main {
             mqttClient.publish("zigbee2mqtt", message);
 
             LoungeController lounge = new LoungeController(mqttClient);
+            KitchenController kitchen = new KitchenController(mqttClient);
 
             while(true);
 
