@@ -1,10 +1,6 @@
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-
 public class Main {
 
     public static String broker = "tcp://192.168.1.20:1883";
@@ -38,6 +34,11 @@ public class Main {
 
             LoungeController lounge = new LoungeController(mqttClient);
             KitchenController kitchen = new KitchenController(mqttClient);
+            LoftController loft = new LoftController(mqttClient);
+            LoftSecondController lounge2 = new LoftSecondController(mqttClient, loft);
+            BathController bath = new BathController(mqttClient);
+            StudyController study = new StudyController(mqttClient);
+
 
             while(true);
 

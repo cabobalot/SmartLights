@@ -5,6 +5,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Random;
 
 public abstract class LightController implements IMqttMessageListener {
     protected HashMap<String, String> lightTopics = new HashMap<>();
@@ -12,6 +13,8 @@ public abstract class LightController implements IMqttMessageListener {
     protected MqttAsyncClient client;
     protected LightState generalLightState = new LightState();
     protected boolean isOn = false;
+
+    protected Random random = new Random();
 
     public LightController(MqttAsyncClient client, String topic) {
         this.client = client;
@@ -53,17 +56,17 @@ public abstract class LightController implements IMqttMessageListener {
         }
     }
 
-    protected void dimUp() {
+    public void dimUp() {
         if (!isOn) {
             return;
         }
         generalLightState.setBrightness(generalLightState.getBrightness() + 20);
         System.out.print("Dim up - " + generalLightState.getBrightness() + "...");
-        broadcastAll("{" + generalLightState.getBrightnessString() + "}");
+        broadcastAll(generalLightState.getFullString());
         System.out.println("done");
     }
 
-    protected void dimDown() {
+    public void dimDown() {
         if (!isOn) {
             return;
         }
@@ -72,37 +75,38 @@ public abstract class LightController implements IMqttMessageListener {
             generalLightState.setBrightness(5);
         }
         System.out.print("Dim down - " + generalLightState.getBrightness() + "...");
-        broadcastAll("{" + generalLightState.getBrightnessString() + "}");
+        broadcastAll(generalLightState.getFullString());
         System.out.println("done");
     }
 
-    protected void setBrightness(int brightness) {
+    public void setBrightness(int brightness) {
         generalLightState.setBrightness(brightness);
         System.out.print("Brightness set - " + generalLightState.getBrightness() + "...");
-        broadcastAll(String.format("{%s, %s}", generalLightState.getBrightnessString(), generalLightState.getColorTempString()));
+        broadcastAll(generalLightState.getFullString());
         System.out.println("done");
     }
 
-    protected void lightToggle() {
+    public void lightToggle() {
         if (isOn) {
             generalLightState.setBrightness(0);
             System.out.print("Light off ...");
-            broadcastAll("{" + generalLightState.getBrightnessString() + "}");
+            broadcastAll(generalLightState.getFullString());
             System.out.println("done");
 
             isOn = false;
         }
         else {
+            generalLightState.setMode(LightState.Mode.CCT);
             generalLightState.setBrightness(80);
             System.out.print("Light on ...");
-            broadcastAll(String.format("{%s, %s}", generalLightState.getBrightnessString(), generalLightState.getColorTempString()));
+            broadcastAll(generalLightState.getFullString());
             System.out.println("done");
 
             isOn = true;
         }
     }
 
-    protected void broadcastAll(String command) {
+    public void broadcastAll(String command) {
         lightTopics.forEach((String name, String topic) -> {
             MqttMessage message = new MqttMessage(command.getBytes());
             message.setQos(Main.qos);
@@ -114,19 +118,42 @@ public abstract class LightController implements IMqttMessageListener {
         });
     }
 
-    protected void upLeftSingle() {
+    public void startColorMode() {
+        generalLightState.setMode(LightState.Mode.COLOR);
+        generalLightState.setHue(random.nextInt(360));
+        generalLightState.setSaturation(70);
+        if (isOn) {
+            System.out.print("color " + generalLightState.getHue() + " ...");
+            broadcastAll(generalLightState.getFullString());
+            System.out.println("done");
+        }
+        else {
+            setBrightness(5);
+            isOn = true;
+        }
+
+    }
+
+    public void stopColorMode() {
+        System.out.print("color off ...");
+        generalLightState.setMode(LightState.Mode.CCT);
+        broadcastAll(generalLightState.getFullString());
+        System.out.println("done");
+    }
+
+    public void upLeftSingle() {
         lightToggle();
     }
 
-    protected void upRightSingle() {
+    public void upRightSingle() {
         dimUp();
     }
 
-    protected void downLeftSingle() {
+    public void downLeftSingle() {
 
     }
 
-    protected void downRightSingle() {
+    public void downRightSingle() {
         if (isOn) {
             dimDown();
         }
@@ -136,41 +163,45 @@ public abstract class LightController implements IMqttMessageListener {
         }
     }
 
-    protected void upLeftDouble() {
-
+    public void upLeftDouble() {
+        if (generalLightState.getMode() != LightState.Mode.COLOR) {
+            startColorMode();
+        } else {
+            stopColorMode();
+        }
     }
 
-    protected void upRightDouble() {
+    public void upRightDouble() {
         setBrightness(100);
     }
 
-    protected void downLeftDouble() {
+    public void downLeftDouble() {
 
     }
 
-    protected void downRightDouble() {
+    public void downRightDouble() {
         if (isOn){
             setBrightness(5);
         }
     }
 
-    protected void upLeftLong() {
+    public void upLeftLong() {
 
     }
 
-    protected void upRightLong() {
+    public void upRightLong() {
 
     }
 
-    protected void downLeftLong() {
+    public void downLeftLong() {
 
     }
 
-    protected void downRightLong() {
+    public void downRightLong() {
 
     }
 
-    protected void registerTopic(String name, String topic) {
+    public void registerTopic(String name, String topic) {
         lightTopics.put(name, topic);
         allLightTopics.put(name, topic);
     }
