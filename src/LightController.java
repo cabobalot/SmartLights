@@ -10,6 +10,7 @@ import java.util.Random;
 public abstract class LightController implements IMqttMessageListener {
     protected HashMap<String, String> lightTopics = new HashMap<>();
     protected static HashMap<String, String> allLightTopics = new HashMap<>();
+    protected static HashMap<String, String> allRelayTopics = new HashMap<>();
     protected MqttAsyncClient client;
     protected LightState generalLightState = new LightState();
     protected boolean isOn = false;
@@ -86,6 +87,9 @@ public abstract class LightController implements IMqttMessageListener {
         System.out.println("done");
     }
 
+    /**
+     * @deprecated
+     */
     public void lightToggle() {
         if (isOn) {
             generalLightState.setBrightness(0);
@@ -104,6 +108,21 @@ public abstract class LightController implements IMqttMessageListener {
 
             isOn = true;
         }
+    }
+
+    public void turnOn() {
+        generalLightState.setMode(LightState.Mode.CCT);
+        generalLightState.setBrightness(80);
+        System.out.print("Light on ...");
+        broadcastAll(generalLightState.getFullString());
+        System.out.println("done");
+    }
+
+    public void turnOff() {
+        generalLightState.setBrightness(0);
+        System.out.print("Light off ...");
+        broadcastAll(generalLightState.getFullString());
+        System.out.println("done");
     }
 
     public void broadcastAll(String command) {
@@ -142,7 +161,14 @@ public abstract class LightController implements IMqttMessageListener {
     }
 
     public void upLeftSingle() {
-        lightToggle();
+        if (isOn) {
+            turnOff();
+            isOn = false;
+        }
+        else {
+            turnOn();
+            isOn = true;
+        }
     }
 
     public void upRightSingle() {
@@ -201,8 +227,12 @@ public abstract class LightController implements IMqttMessageListener {
 
     }
 
-    public void registerTopic(String name, String topic) {
+    public void registerLighttopic(String name, String topic) {
         lightTopics.put(name, topic);
         allLightTopics.put(name, topic);
+    }
+
+    public void registerRelayTopic(String name, String topic) {
+        allRelayTopics.put(name, topic);
     }
 }

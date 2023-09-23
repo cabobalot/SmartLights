@@ -5,14 +5,14 @@ public class LoftController extends LightController {
     public LoftController(MqttAsyncClient client) {
         super(client, "zigbee2mqtt/LoftSwitch/action");
 
-        registerTopic("Loft1", "zigbee2mqtt/LoftLight1/set");
-        registerTopic("Loft2", "zigbee2mqtt/LoftLight2/set");
+        registerLighttopic("Loft1", "zigbee2mqtt/LoftLight1/set");
+        registerLighttopic("Loft2", "zigbee2mqtt/LoftLight2/set");
 
         try {
             Thread.sleep(500);
-            lightToggle();
+            turnOn();
             Thread.sleep(500);
-            lightToggle();
+            turnOff();
         }
         catch (InterruptedException e) {
             e.printStackTrace();

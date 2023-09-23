@@ -32,12 +32,7 @@ public class Main {
             message.setQos(qos);
             mqttClient.publish("zigbee2mqtt", message);
 
-            LoungeController lounge = new LoungeController(mqttClient);
-            KitchenController kitchen = new KitchenController(mqttClient);
-            LoftController loft = new LoftController(mqttClient);
-            LoftSecondController lounge2 = new LoftSecondController(mqttClient, loft);
-            BathController bath = new BathController(mqttClient);
-            StudyController study = new StudyController(mqttClient);
+            HouseStructure.init(mqttClient);
 
 
             while(true);

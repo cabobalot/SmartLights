@@ -7,18 +7,25 @@ public class LoungeController extends LightController {
     public LoungeController(MqttAsyncClient client) {
         super(client, "zigbee2mqtt/LoungeSwitch/action");
 
-        registerTopic("Lounge1", "zigbee2mqtt/LoungeLight1/set");
-        registerTopic("Lounge2", "zigbee2mqtt/LoungeLight2/set");
-        registerTopic("Lounge3", "zigbee2mqtt/LoungeLight3/set");
+        registerLighttopic("Lounge1", "zigbee2mqtt/LoungeLight1/set");
+        registerLighttopic("Lounge2", "zigbee2mqtt/LoungeLight2/set");
+        registerLighttopic("Lounge3", "zigbee2mqtt/LoungeLight3/set");
 
         try {
             Thread.sleep(500);
-            lightToggle();
+            turnOn();
             Thread.sleep(500);
-            lightToggle();
+            turnOff();
         }
         catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void upLeftLong() {
+        super.upLeftLong();
+
+        HouseStructure.wholeHouseOff();
     }
 }

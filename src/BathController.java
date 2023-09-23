@@ -10,15 +10,17 @@ public class BathController extends LightController {
     public BathController(MqttAsyncClient client) {
         super(client, "zigbee2mqtt/BathSwitch/action");
 
-        registerTopic("Bath1", "zigbee2mqtt/BathLight1/set");
-        registerTopic("Bath2", "zigbee2mqtt/BathLight2/set");
-        registerTopic("BathVanity", "zigbee2mqtt/BathVanity/set");
+        registerLighttopic("Bath1", "zigbee2mqtt/BathLight1/set");
+        registerLighttopic("Bath2", "zigbee2mqtt/BathLight2/set");
+        registerLighttopic("BathVanity", "zigbee2mqtt/BathVanity/set");
+
+        registerRelayTopic("BathFan", bathFanTopic);
 
         try {
             Thread.sleep(500);
-            lightToggle();
+            turnOn();
             Thread.sleep(500);
-            lightToggle();
+            turnOff();
         }
         catch (InterruptedException e) {
             e.printStackTrace();
