@@ -160,6 +160,10 @@ public abstract class LightController implements IMqttMessageListener {
         System.out.println("done");
     }
 
+    public void setCCT(int cct) {
+        generalLightState.setColorTemp(cct);
+    }
+
     public void upLeftSingle() {
         if (isOn) {
             turnOff();

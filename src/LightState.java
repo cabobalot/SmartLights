@@ -48,6 +48,7 @@ public class LightState {
         return colorTemp;
     }
 
+    // 500 = warm, 150 = cool
     public void setColorTemp(int colorTemp) {
         this.colorTemp = limit(colorTemp, 150, 500);
     }

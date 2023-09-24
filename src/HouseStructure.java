@@ -1,6 +1,8 @@
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 
 import java.util.HashMap;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class HouseStructure {
     public static HashMap<String, String> lightTopics = new HashMap<>();
@@ -11,6 +13,14 @@ public class HouseStructure {
     private static LoftSecondController loft2;
     private static BathController bath;
     private static StudyController study;
+
+    private static Timer timer = new Timer();
+    private static TimerTask hourlyTask = new TimerTask () {
+        @Override
+        public void run () {
+            CCTControl();
+        }
+    };
 
     public static void init(MqttAsyncClient mqttClient) {
         if (isInitialized) {
@@ -27,6 +37,9 @@ public class HouseStructure {
         lightTopics.put("zigbee2mqtt/lounge1/set", "test");
 
         isInitialized = true;
+
+        timer.scheduleAtFixedRate(hourlyTask, 0, 1000*60*60);
+
     }
 
     public static void wholeHouseOff() {
@@ -35,6 +48,13 @@ public class HouseStructure {
         loft.turnOff();
         bath.turnOff();
         study.turnOff();
+    }
+
+    public static void CCTControl() {
+        int hour = java.time.LocalTime.now().getHour();
+        int newTemp = 10 * (int)Math.pow(hour - 12, 2) + 150;
+
+        //TODO set all the controllers CCT
     }
 
 }
