@@ -1,6 +1,13 @@
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
+
+import java.util.Random;
 
 public class KitchenController extends LightController {
+
+    private Thread discoThread;
+    private boolean discoRunning = false;
 
     public KitchenController(MqttAsyncClient client) {
         super(client, "zigbee2mqtt/KitchenSwitch/action");
@@ -23,8 +30,36 @@ public class KitchenController extends LightController {
         }
     }
 
+    //disco...
     @Override
     public void downLeftLong() {
-        super.downLeftLong();
+        if (discoRunning) {
+            discoRunning = false;
+            System.out.println("Disco mode turned off :(");
+        }
+        else {
+            discoRunning = true;
+            discoThread = new Thread(this::doTheDisco);
+            discoThread.start();
+            System.out.println("Disco mode on :)");
+        }
+
+    }
+
+    private void doTheDisco() {
+        while (discoRunning) { // pick random colors every second for every light
+            allLightTopics.forEach((String name, String topic) -> {
+                String message = String.format("""
+                    {"color":{"hue":%d,"saturation":%d}, "brightness":%d}""", random.nextInt(6) * 60, 100, 80);
+                broadcast(message, topic);
+            });
+            try {
+                Thread.sleep(2000);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return;
+            }
+
+        }
     }
 }

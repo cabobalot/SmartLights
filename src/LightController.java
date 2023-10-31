@@ -155,6 +155,16 @@ public abstract class LightController implements IMqttMessageListener {
         });
     }
 
+    public void broadcast(String command, String topic) {
+        MqttMessage message = new MqttMessage(command.getBytes());
+        message.setQos(Main.qos);
+        try {
+            client.publish(topic, message);
+        } catch (MqttException e) {
+            Main.printError(e);
+        }
+    }
+
     public void startColorMode() {
         generalLightState.setMode(LightState.Mode.COLOR);
         generalLightState.setHue(random.nextInt(360)); //TODO make this better lol

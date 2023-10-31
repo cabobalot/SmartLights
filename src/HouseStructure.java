@@ -15,7 +15,7 @@ public class HouseStructure {
     private static StudyController study;
 
     private static Timer timer = new Timer();
-    private static TimerTask hourlyTask = new TimerTask () {
+    private static TimerTask CCTTask = new TimerTask () {
         @Override
         public void run () {
             CCTControl();
@@ -36,7 +36,7 @@ public class HouseStructure {
 
         isInitialized = true;
 
-        timer.scheduleAtFixedRate(hourlyTask, 0, 1000*60*60);
+        timer.scheduleAtFixedRate(CCTTask, 0, 1000*60*30); // every half hour
 
     }
 
