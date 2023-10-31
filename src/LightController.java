@@ -27,7 +27,7 @@ public abstract class LightController implements IMqttMessageListener {
         }
     }
     @Override
-    public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
+    public void messageArrived(String topic, MqttMessage mqttMessage) {
         System.out.println(topic + " : " + mqttMessage);
 
         if (Arrays.equals(mqttMessage.getPayload(), "1_single".getBytes())) {
@@ -46,13 +46,13 @@ public abstract class LightController implements IMqttMessageListener {
             downLeftDouble();
         } else if (Arrays.equals(mqttMessage.getPayload(), "4_double".getBytes())) {
             downRightDouble();
-        } else if (Arrays.equals(mqttMessage.getPayload(), "1_long".getBytes())) {
+        } else if (Arrays.equals(mqttMessage.getPayload(), "1_hold".getBytes())) {
             upLeftLong();
-        } else if (Arrays.equals(mqttMessage.getPayload(), "2_long".getBytes())) {
+        } else if (Arrays.equals(mqttMessage.getPayload(), "2_hold".getBytes())) {
             upRightLong();
-        } else if (Arrays.equals(mqttMessage.getPayload(), "3_long".getBytes())) {
+        } else if (Arrays.equals(mqttMessage.getPayload(), "3_hold".getBytes())) {
             downLeftLong();
-        } else if (Arrays.equals(mqttMessage.getPayload(), "4_long".getBytes())) {
+        } else if (Arrays.equals(mqttMessage.getPayload(), "4_hold".getBytes())) {
             downRightLong();
         }
     }
@@ -111,11 +111,17 @@ public abstract class LightController implements IMqttMessageListener {
     }
 
     public void turnOn() {
-        generalLightState.setMode(LightState.Mode.CCT);
-        generalLightState.setBrightness(80);
+        generalLightState.setMode(LightState.Mode.CCT); //             if in night mode this set will fail
+        if (generalLightState.getMode() == LightState.Mode.NIGHT) { // and it will stay in night mode
+            generalLightState.setBrightness(10);
+        }
+        else {
+            generalLightState.setBrightness(80);
+        }
         System.out.print("Light on ...");
         broadcastAll(generalLightState.getFullString());
         System.out.println("done");
+        isOn = true;
     }
 
     public void turnOff() {
@@ -123,6 +129,18 @@ public abstract class LightController implements IMqttMessageListener {
         System.out.print("Light off ...");
         broadcastAll(generalLightState.getFullString());
         System.out.println("done");
+        isOn = false;
+    }
+
+    public void setNightMode() {
+        generalLightState.setMode(LightState.Mode.NIGHT);
+    }
+
+    public void setDayMode() {
+        generalLightState.forceSetMode(LightState.Mode.CCT);
+        if (isOn) {
+            broadcastAll(generalLightState.getFullString());
+        }
     }
 
     public void broadcastAll(String command) {
@@ -139,7 +157,7 @@ public abstract class LightController implements IMqttMessageListener {
 
     public void startColorMode() {
         generalLightState.setMode(LightState.Mode.COLOR);
-        generalLightState.setHue(random.nextInt(360));
+        generalLightState.setHue(random.nextInt(360)); //TODO make this better lol
         generalLightState.setSaturation(70);
         if (isOn) {
             System.out.print("color " + generalLightState.getHue() + " ...");
@@ -162,6 +180,7 @@ public abstract class LightController implements IMqttMessageListener {
 
     public void setCCT(int cct) {
         generalLightState.setColorTemp(cct);
+        broadcastAll(generalLightState.getFullString());
     }
 
     public void upLeftSingle() {
@@ -188,6 +207,7 @@ public abstract class LightController implements IMqttMessageListener {
             dimDown();
         }
         else {
+            generalLightState.setMode(LightState.Mode.CCT);
             setBrightness(5);
             isOn = true;
         }
@@ -231,7 +251,7 @@ public abstract class LightController implements IMqttMessageListener {
 
     }
 
-    public void registerLighttopic(String name, String topic) {
+    public void registerLightTopic(String name, String topic) {
         lightTopics.put(name, topic);
         allLightTopics.put(name, topic);
     }

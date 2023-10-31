@@ -20,11 +20,11 @@ public class Main {
         try {
             MqttAsyncClient mqttClient = new MqttAsyncClient(broker, clientID, new MemoryPersistence());
             MqttConnectOptions options = new MqttConnectOptions();
-            options.setMaxInflight(100);
+            options.setMaxInflight(1000); // TODO check that this works
             options.setCleanSession(true);
 
             System.out.println("Connecting to broker at: " + broker);
-            mqttClient.connect();
+            mqttClient.connect(options);
             while (!mqttClient.isConnected()); // wait for connection
             System.out.println("Connection successful");
 
@@ -67,3 +67,14 @@ public class Main {
         e.printStackTrace();
     }
 }
+
+
+/* debug strings
+//blue
+mosquitto_pub -h "192.168.1.20" -t "zigbee2mqtt/Kitchen/set" -m '{"color":{"hue":240,"saturation":100}, "brightness":80}'
+
+//white
+mosquitto_pub -h "192.168.1.20" -t "zigbee2mqtt/Kitchen/set" -m '{"color_temp":325, "brightness":80}'
+
+
+ */

@@ -1,7 +1,8 @@
 public class LightState {
     public enum Mode {
         CCT,
-        COLOR
+        COLOR,
+        NIGHT
     }
 
     private Mode mode = Mode.CCT;
@@ -16,10 +17,16 @@ public class LightState {
     public String getFullString() {
         if (mode == Mode.CCT) {
             return String.format("{\"brightness\": %d, \"color_temp\": %d}", brightness, colorTemp);
-        } else {
+        } else if (mode == Mode.COLOR) {
             return String.format("""
                     {"color":{"hue":%d,"saturation":%d}, "brightness":%d}""", hue, saturation, brightness);
 //            {"color":{"hue":360,"saturation":100}, "brightness":100}
+        } else if (mode == Mode.NIGHT) {
+            // honor brightness, but set color to 100% saturated red
+            return String.format("""
+                    {"color":{"hue":%d,"saturation":%d}, "brightness":%d}""", 360, 100, brightness);
+        } else { // fallback to CCT
+            return String.format("{\"brightness\": %d, \"color_temp\": %d}", brightness, colorTemp);
         }
     }
 
@@ -73,7 +80,21 @@ public class LightState {
         return mode;
     }
 
+    /**
+     * only allows changing mode according to state machine logic
+     * @param mode
+     */
     public void setMode(Mode mode) {
+        if (this.mode != Mode.NIGHT) {
+            this.mode = mode;
+        }
+    }
+
+    /**
+     * use to exit night mode
+     * @param mode
+     */
+    public void forceSetMode(Mode mode) {
         this.mode = mode;
     }
 

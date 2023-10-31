@@ -11,35 +11,65 @@ public class LoftSecondController extends LightController {
         masterController = otherLoftController;
     }
 
-    //this feels like the wrong way to do this but...
     @Override
-    public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
-        System.out.println(topic + " : " + mqttMessage);
-
-        if (Arrays.equals(mqttMessage.getPayload(), "1_single".getBytes())) {
-            masterController.upLeftSingle();
-        } else if (Arrays.equals(mqttMessage.getPayload(), "2_single".getBytes())) {
-            masterController.upRightSingle();
-        } else if (Arrays.equals(mqttMessage.getPayload(), "3_single".getBytes())) {
-            masterController.downLeftSingle();
-        } else if (Arrays.equals(mqttMessage.getPayload(), "4_single".getBytes())) {
-            masterController.downRightSingle();
-        } else if (Arrays.equals(mqttMessage.getPayload(), "1_double".getBytes())) {
-            masterController.upLeftDouble();
-        } else if (Arrays.equals(mqttMessage.getPayload(), "2_double".getBytes())) {
-            masterController.upRightDouble();
-        } else if (Arrays.equals(mqttMessage.getPayload(), "3_double".getBytes())) {
-            masterController.downLeftDouble();
-        } else if (Arrays.equals(mqttMessage.getPayload(), "4_double".getBytes())) {
-            masterController.downRightDouble();
-        } else if (Arrays.equals(mqttMessage.getPayload(), "1_long".getBytes())) {
-            masterController.upLeftLong();
-        } else if (Arrays.equals(mqttMessage.getPayload(), "2_long".getBytes())) {
-            masterController.upRightLong();
-        } else if (Arrays.equals(mqttMessage.getPayload(), "3_long".getBytes())) {
-            masterController.downLeftLong();
-        } else if (Arrays.equals(mqttMessage.getPayload(), "4_long".getBytes())) {
-            masterController.downRightLong();
-        }
+    public void upLeftSingle() {
+        masterController.upLeftSingle();
     }
+
+    @Override
+    public void upRightSingle() {
+        masterController.upRightSingle();
+    }
+
+    @Override
+    public void downLeftSingle() {
+        masterController.downLeftSingle();
+    }
+
+    @Override
+    public void downRightSingle() {
+        masterController.downRightSingle();
+    }
+
+    @Override
+    public void upLeftDouble() {
+        masterController.upLeftDouble();
+    }
+
+    @Override
+    public void upRightDouble() {
+        masterController.upRightDouble();
+    }
+
+    @Override
+    public void downLeftDouble() {
+        masterController.downLeftDouble();
+    }
+
+    @Override
+    public void downRightDouble() {
+        masterController.downRightDouble();
+    }
+
+    @Override
+    public void upLeftLong() {
+        System.out.println("upleftlong entered in slave controller");
+        masterController.upLeftLong();
+    }
+
+    @Override
+    public void upRightLong() {
+        masterController.upRightLong();
+    }
+
+    @Override
+    public void downLeftLong() {
+        masterController.downLeftLong();
+    }
+
+    @Override
+    public void downRightLong() {
+        masterController.downRightLong();
+    }
+
 }

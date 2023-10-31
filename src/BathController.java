@@ -10,9 +10,9 @@ public class BathController extends LightController {
     public BathController(MqttAsyncClient client) {
         super(client, "zigbee2mqtt/BathSwitch/action");
 
-        registerLighttopic("Bath1", "zigbee2mqtt/BathLight1/set");
-        registerLighttopic("Bath2", "zigbee2mqtt/BathLight2/set");
-        registerLighttopic("BathVanity", "zigbee2mqtt/BathVanity/set");
+        registerLightTopic("Bath1", "zigbee2mqtt/BathLight1/set");
+        registerLightTopic("Bath2", "zigbee2mqtt/BathLight2/set");
+        registerLightTopic("BathVanity", "zigbee2mqtt/BathVanity/set");
 
         registerRelayTopic("BathFan", bathFanTopic);
 

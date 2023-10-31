@@ -34,8 +34,6 @@ public class HouseStructure {
         bath = new BathController(mqttClient);
         study = new StudyController(mqttClient);
 
-        lightTopics.put("zigbee2mqtt/lounge1/set", "test");
-
         isInitialized = true;
 
         timer.scheduleAtFixedRate(hourlyTask, 0, 1000*60*60);
@@ -43,18 +41,46 @@ public class HouseStructure {
     }
 
     public static void wholeHouseOff() {
+        System.out.print("Turning whole house off...");
         lounge.turnOff();
         kitchen.turnOff();
         loft.turnOff();
         bath.turnOff();
         study.turnOff();
+        System.out.println("done");
     }
 
-    public static void CCTControl() {
-        int hour = java.time.LocalTime.now().getHour();
-        int newTemp = 10 * (int)Math.pow(hour - 12, 2) + 150;
+    public static void setNightMode() {
+        System.out.print("set night mode...");
+        lounge.setNightMode();
+        kitchen.setNightMode();
+        loft.setNightMode();
+        bath.setNightMode();
+        study.setNightMode();
+        System.out.println("done");
+    }
 
-        //TODO set all the controllers CCT
+    public static void exitNightMode() {
+        System.out.print("set night mode...");
+        lounge.setDayMode();
+        kitchen.setDayMode();
+        loft.setDayMode();
+        bath.setDayMode();
+        study.setDayMode();
+        System.out.println("done");
+    }
+
+
+
+    public static void CCTControl() {
+       int hour = java.time.LocalTime.now().getHour();
+       int newTemp = 10 * (int)Math.pow(hour - 12, 2) + 150;
+
+       lounge.setCCT(newTemp);
+       kitchen.setCCT(newTemp);
+       loft.setCCT(newTemp);
+       bath.setCCT(newTemp);
+       study.setCCT(newTemp);
     }
 
 }
