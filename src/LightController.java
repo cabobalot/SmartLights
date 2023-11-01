@@ -15,7 +15,7 @@ public abstract class LightController implements IMqttMessageListener {
     protected LightState generalLightState = new LightState();
     protected boolean isOn = false;
 
-    protected Random random = new Random();
+    protected SmartRandom random = new SmartRandom(6, 3);
 
     public LightController(MqttAsyncClient client, String topic) {
         this.client = client;
@@ -167,7 +167,7 @@ public abstract class LightController implements IMqttMessageListener {
 
     public void startColorMode() {
         generalLightState.setMode(LightState.Mode.COLOR);
-        generalLightState.setHue(random.nextInt(360)); //TODO make this better lol
+        generalLightState.setHue(random.getRandomInt() * 60); //TODO make this better lol
         generalLightState.setSaturation(70);
         if (isOn) {
             System.out.print("color " + generalLightState.getHue() + " ...");
