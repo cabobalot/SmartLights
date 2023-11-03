@@ -1,5 +1,8 @@
+import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator;
+import com.luckycatlabs.sunrisesunset.dto.Location;
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -21,6 +24,8 @@ public class HouseStructure {
             CCTControl();
         }
     };
+    private static Location location = new Location("41.0", "-112.0");
+     private static SunriseSunsetCalculator sunCalculator = new SunriseSunsetCalculator(location, "America/Denver");
 
     public static void init(MqttAsyncClient mqttClient) {
         if (isInitialized) {
@@ -73,14 +78,48 @@ public class HouseStructure {
 
 
     public static void CCTControl() {
-       int hour = java.time.LocalTime.now().getHour();
-       int newTemp = 10 * (int)Math.pow(hour - 12, 2) + 150;
 
-       lounge.setCCT(newTemp);
-       kitchen.setCCT(newTemp);
-       loft.setCCT(newTemp);
-       bath.setCCT(newTemp);
-       study.setCCT(newTemp);
+        Calendar now = Calendar.getInstance();
+        Calendar sunrise = sunCalculator.getCivilSunriseCalendarForDate(now);
+        Calendar sunset = sunCalculator.getCivilSunsetCalendarForDate(now);
+
+        double rise = sunrise.get(Calendar.HOUR_OF_DAY) + (sunrise.get(Calendar.MINUTE) / 60.0);
+        double set = sunset.get(Calendar.HOUR_OF_DAY) + (sunset.get(Calendar.MINUTE) / 60.0);
+        double noon = (rise / 2) + (set / 2);
+        double time = now.get(Calendar.HOUR_OF_DAY) + (now.get(Calendar.MINUTE) / 60.0);
+
+        double A = 350 / Math.pow(rise - noon, 4);
+
+        int newTemp = (int)(A * Math.pow(time - noon, 4));
+
+        lounge.setCCT(newTemp);
+        kitchen.setCCT(newTemp);
+        loft.setCCT(newTemp);
+        bath.setCCT(newTemp);
+        study.setCCT(newTemp);
+    }
+
+    public static void main(String[] args) {
+        Calendar now = Calendar.getInstance();
+        Calendar sunrise = sunCalculator.getCivilSunriseCalendarForDate(now);
+        Calendar sunset = sunCalculator.getCivilSunsetCalendarForDate(now);
+
+        double rise = sunrise.get(Calendar.HOUR_OF_DAY) + (sunrise.get(Calendar.MINUTE) / 60.0);
+        double set = sunset.get(Calendar.HOUR_OF_DAY) + (sunset.get(Calendar.MINUTE) / 60.0);
+        double noon = (rise / 2) + (set / 2);
+        double time = now.get(Calendar.HOUR_OF_DAY) + (now.get(Calendar.MINUTE) / 60.0);
+
+        double A = 350 / Math.pow(rise - noon, 4);
+
+        double CCT = A * Math.pow(time - noon, 4);
+
+        System.out.println("CCT:" + (int)CCT);
+
+        System.out.println("sunrise: " + sunrise.get(Calendar.HOUR_OF_DAY) + ":" + sunrise.get(Calendar.MINUTE));
+        System.out.println("sunset: " + sunset.get(Calendar.HOUR_OF_DAY)  + ":" + sunset.get(Calendar.MINUTE));
+
+
+
     }
 
 }
