@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="luckycatlabs.SunriseSunsetCalculator" type="repository">
+    <properties maven-id="com.luckycatlabs:SunriseSunsetCalculator:1.2" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/luckycatlabs/SunriseSunsetCalculator/1.2/SunriseSunsetCalculator-1.2.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/com/luckycatlabs/SunriseSunsetCalculator/1.2/SunriseSunsetCalculator-1.2-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES />
+  </library>
+</component>

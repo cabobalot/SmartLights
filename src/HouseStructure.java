@@ -78,7 +78,6 @@ public class HouseStructure {
 
 
     public static void CCTControl() {
-
         Calendar now = Calendar.getInstance();
         Calendar sunrise = sunCalculator.getCivilSunriseCalendarForDate(now);
         Calendar sunset = sunCalculator.getCivilSunsetCalendarForDate(now);
@@ -97,6 +96,11 @@ public class HouseStructure {
         loft.setCCT(newTemp);
         bath.setCCT(newTemp);
         study.setCCT(newTemp);
+
+        // exit night mode on sunrise
+        if (time > rise) {
+            exitNightMode();
+        }
     }
 
     public static void main(String[] args) {
