@@ -66,7 +66,7 @@ public class HouseStructure {
     }
 
     public static void exitNightMode() {
-        System.out.print("set night mode...");
+        System.out.print("exit night mode...");
         lounge.setDayMode();
         kitchen.setDayMode();
         loft.setDayMode();
