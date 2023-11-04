@@ -92,10 +92,14 @@ public class LightState {
 
     /**
      * use to exit night mode
-     * @param mode
+     * @return true if the state was night and now changed. False if it was never in night mode
      */
-    public void forceSetMode(Mode mode) {
-        this.mode = mode;
+    public boolean exitNightMode() {
+        if (mode == Mode.NIGHT) {
+            this.mode = Mode.CCT;
+            return true;
+        }
+        return false;
     }
 
     private int limit(int in, int min, int max) {

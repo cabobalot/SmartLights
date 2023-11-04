@@ -123,7 +123,6 @@ public class HouseStructure {
         System.out.println("sunset: " + sunset.get(Calendar.HOUR_OF_DAY)  + ":" + sunset.get(Calendar.MINUTE));
 
 
-
     }
 
 }

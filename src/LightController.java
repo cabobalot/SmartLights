@@ -5,7 +5,6 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Random;
 
 public abstract class LightController implements IMqttMessageListener {
     protected HashMap<String, String> lightTopics = new HashMap<>();
@@ -137,8 +136,7 @@ public abstract class LightController implements IMqttMessageListener {
     }
 
     public void setDayMode() {
-        generalLightState.forceSetMode(LightState.Mode.CCT);
-        if (isOn) {
+        if (generalLightState.exitNightMode() && isOn) { // only send the broadcast if we were in night mode to begin with
             broadcastAll(generalLightState.getFullString());
         }
     }
