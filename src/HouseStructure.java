@@ -25,7 +25,8 @@ public class HouseStructure {
         }
     };
     private static Location location = new Location("41.0", "-112.0");
-     private static SunriseSunsetCalculator sunCalculator = new SunriseSunsetCalculator(location, "America/Denver");
+    private static SunriseSunsetCalculator sunCalculator = new SunriseSunsetCalculator(location, "America/Denver");
+    private static boolean hasSunriseHappened = false;
 
     public static void init(MqttAsyncClient mqttClient) {
         if (isInitialized) {
@@ -42,7 +43,6 @@ public class HouseStructure {
         isInitialized = true;
 
         timer.scheduleAtFixedRate(CCTTask, 0, 1000*60*30); // every half hour
-
     }
 
     public static void wholeHouseOff() {
@@ -98,8 +98,16 @@ public class HouseStructure {
         study.setCCT(newTemp);
 
         // exit night mode on sunrise
-        if (time > rise) {
-            exitNightMode();
+        if (hasSunriseHappened) {
+            if (time < rise) { // still morning, flag not reset yet
+                hasSunriseHappened = false;
+            }
+        }
+        else {
+            if (time > rise) { // it is time to sunrise
+                exitNightMode();
+                hasSunriseHappened = true;
+            }
         }
     }
 
