@@ -53,7 +53,6 @@ public class LoftSecondController extends LightController {
 
     @Override
     public void upLeftLong() {
-        System.out.println("upleftlong entered in slave controller");
         masterController.upLeftLong();
     }
 

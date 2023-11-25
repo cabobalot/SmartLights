@@ -42,7 +42,7 @@ public class HouseStructure {
 
         isInitialized = true;
 
-        timer.scheduleAtFixedRate(CCTTask, 0, 1000*60*30); // every half hour
+        timer.scheduleAtFixedRate(CCTTask, 0, 1000*60*15); // every half hour
     }
 
     public static void wholeHouseOff() {
@@ -89,7 +89,7 @@ public class HouseStructure {
 
         double A = 350 / Math.pow(rise - noon, 4);
 
-        int newTemp = (int)(A * Math.pow(time - noon, 4));
+        int newTemp = (int)(A * Math.pow(time - noon, 4)) + 150;
 
         lounge.setCCT(newTemp);
         kitchen.setCCT(newTemp);
@@ -123,7 +123,7 @@ public class HouseStructure {
 
         double A = 350 / Math.pow(rise - noon, 4);
 
-        double CCT = A * Math.pow(time - noon, 4);
+        double CCT = A * Math.pow(time - noon, 4) + 150;
 
         System.out.println("CCT:" + (int)CCT);
 

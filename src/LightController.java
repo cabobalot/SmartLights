@@ -60,53 +60,43 @@ public abstract class LightController implements IMqttMessageListener {
         if (!isOn) {
             return;
         }
-        generalLightState.setBrightness(generalLightState.getBrightness() + 20);
-        System.out.print("Dim up - " + generalLightState.getBrightness() + "...");
-        broadcastAll(generalLightState.getFullString());
-        System.out.println("done");
+		System.out.println("Dim up");
+        setBrightness(generalLightState.getBrightness() + 20);
     }
 
     public void dimDown() {
         if (!isOn) {
             return;
         }
-        generalLightState.setBrightness(generalLightState.getBrightness() - 20);
-        if (generalLightState.getBrightness() < 10) {
-            generalLightState.setBrightness(5);
-        }
-        System.out.print("Dim down - " + generalLightState.getBrightness() + "...");
-        broadcastAll(generalLightState.getFullString());
-        System.out.println("done");
+		System.out.println("Dim up");
+        setBrightness(generalLightState.getBrightness() - 20);
     }
 
+	/**
+	 * set the brightness and broadcast to all.
+	 * if brightness < 10 this will call doLowestDim()
+	 * @param brightness the brightness to set (automagically internally clamped 0-100)
+	 */
     public void setBrightness(int brightness) {
-        generalLightState.setBrightness(brightness);
-        System.out.print("Brightness set - " + generalLightState.getBrightness() + "...");
+		if (brightness < 10) {
+			doLowestDim();
+		}
+		else {
+			generalLightState.setBrightness(brightness);
+			System.out.print("Brightness set - " + generalLightState.getBrightness() + "...");
+			broadcastAll(generalLightState.getFullString());
+			System.out.println("done");
+		}
+	}
+
+	/**
+	 * default set brightness to 5 for all lights in group, override for different lowest dim.
+	 */
+    public void doLowestDim() {
+        generalLightState.setBrightness(5);
+		System.out.print("Dim lowest - " + generalLightState.getBrightness() + "...");
         broadcastAll(generalLightState.getFullString());
         System.out.println("done");
-    }
-
-    /**
-     * @deprecated
-     */
-    public void lightToggle() {
-        if (isOn) {
-            generalLightState.setBrightness(0);
-            System.out.print("Light off ...");
-            broadcastAll(generalLightState.getFullString());
-            System.out.println("done");
-
-            isOn = false;
-        }
-        else {
-            generalLightState.setMode(LightState.Mode.CCT);
-            generalLightState.setBrightness(80);
-            System.out.print("Light on ...");
-            broadcastAll(generalLightState.getFullString());
-            System.out.println("done");
-
-            isOn = true;
-        }
     }
 
     public void turnOn() {
