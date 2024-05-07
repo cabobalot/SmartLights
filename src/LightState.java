@@ -2,16 +2,42 @@ public class LightState {
     public enum Mode {
         CCT,
         COLOR,
-        NIGHT
     }
 
-    private Mode mode = Mode.CCT;
+    private final Mode mode;
+    private final int brightness;
+    private final int colorTemp;
+    private final int hue;
+    private final int saturation;
 
-    private int dimSetting = 4;
-    private int brightness = 80;
-    private int colorTemp = 325;
-    private int hue = 1;
-    private int saturation = 100;
+    /**
+     * create in CCT mode
+     * @param brightness
+     * @param colorTemp
+     */
+    public LightState(int brightness, int colorTemp) {
+        this.mode = Mode.CCT;
+        this.brightness = limit(brightness, 0, 100);
+        this.colorTemp = limit(colorTemp, 150, 500); // 500 = warm, 150 = cool
+
+        this.hue = -1;
+        this.saturation = -1;
+    }
+
+    /**
+     * create in color mode
+     * @param brightness
+     * @param hue
+     * @param saturation
+     */
+    public LightState(int brightness, int hue, int saturation) {
+        this.mode = Mode.COLOR;
+        this.brightness = limit(brightness, 0, 100);
+        this.hue = limit(hue, 0, 360);
+        this.saturation = limit(saturation, 0, 100);
+
+        this.colorTemp = -1;
+    }
 
     /**
      * get a string with brightness and HSV or CCT depending on mode
@@ -19,15 +45,13 @@ public class LightState {
     public String getFullString() {
         if (mode == Mode.CCT) {
             return String.format("{\"brightness\": %d, \"color_temp\": %d}", brightness, colorTemp);
-        } else if (mode == Mode.COLOR) {
+        }
+        else if (mode == Mode.COLOR) {
             return String.format("""
                     {"color":{"hue":%d,"saturation":%d}, "brightness":%d}""", hue, saturation, brightness);
 //            {"color":{"hue":360,"saturation":100}, "brightness":100}
-        } else if (mode == Mode.NIGHT) {
-            // honor brightness, but set color to 100% saturated red
-            return String.format("""
-                    {"color":{"hue":%d,"saturation":%d}, "brightness":%d}""", 360, 100, brightness);
-        } else { // fallback to CCT
+        }
+        else { // fallback to CCT
             return String.format("{\"brightness\": %d, \"color_temp\": %d}", brightness, colorTemp);
         }
     }
@@ -45,78 +69,26 @@ public class LightState {
         return String.format("\"color_temp\": %d", colorTemp);
     }
 
-    public int getDimSetting() {
-        return dimSetting;
-    }
-
-    /**
-     * set do desired dim setting, this class makes no decisions based on the dim setting. an external class should
-     * read the dim setting and set the brightness field
-     * automagically limited from 0 to 4 inclusive. 0 is off.
-     * @param dimSetting
-     */
-    public void setDimSetting(int dimSetting) {
-        this.dimSetting = limit(dimSetting, 0, 4);
-    }
-
     public int getBrightness() {
         return brightness;
-    }
-
-    public void setBrightness(int brightness) {
-        this.brightness = limit(brightness, 0, 100);
     }
 
     public int getColorTemp() {
         return colorTemp;
     }
 
-    // 500 = warm, 150 = cool
-    public void setColorTemp(int colorTemp) {
-        this.colorTemp = limit(colorTemp, 150, 500);
-    }
-
     public int getHue() {
         return hue;
-    }
-
-    public void setHue(int hue) {
-        this.hue = limit(hue, 0, 360);
     }
 
     public int getSaturation() {
         return saturation;
     }
 
-    public void setSaturation(int saturation) {
-        this.saturation = limit(saturation, 0, 100);
-    }
-
     public Mode getMode() {
         return mode;
     }
 
-    /**
-     * only allows changing mode according to state machine logic
-     * @param mode
-     */
-    public void setMode(Mode mode) {
-        if (this.mode != Mode.NIGHT) {
-            this.mode = mode;
-        }
-    }
-
-    /**
-     * use to exit night mode
-     * @return true if the state was night and now changed. False if it was never in night mode
-     */
-    public boolean exitNightMode() {
-        if (mode == Mode.NIGHT) {
-            this.mode = Mode.CCT;
-            return true;
-        }
-        return false;
-    }
 
     private int limit(int in, int min, int max) {
         if (in < min) {
