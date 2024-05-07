@@ -6,6 +6,8 @@ public class LightState {
     }
 
     private Mode mode = Mode.CCT;
+
+    private int dimSetting = 4;
     private int brightness = 80;
     private int colorTemp = 325;
     private int hue = 1;
@@ -41,6 +43,20 @@ public class LightState {
 
     public String getColorTempString() {
         return String.format("\"color_temp\": %d", colorTemp);
+    }
+
+    public int getDimSetting() {
+        return dimSetting;
+    }
+
+    /**
+     * set do desired dim setting, this class makes no decisions based on the dim setting. an external class should
+     * read the dim setting and set the brightness field
+     * automagically limited from 0 to 4 inclusive. 0 is off.
+     * @param dimSetting
+     */
+    public void setDimSetting(int dimSetting) {
+        this.dimSetting = limit(dimSetting, 0, 4);
     }
 
     public int getBrightness() {

@@ -61,7 +61,8 @@ public abstract class LightController implements IMqttMessageListener {
             return;
         }
 		System.out.println("Dim up");
-        setBrightness(generalLightState.getBrightness() + 20);
+        generalLightState.setDimSetting(generalLightState.getDimSetting() + 1);
+        setBrightness();
     }
 
     public void dimDown() {
@@ -69,20 +70,26 @@ public abstract class LightController implements IMqttMessageListener {
             return;
         }
 		System.out.println("Dim up");
-        setBrightness(generalLightState.getBrightness() - 20);
+        generalLightState.setDimSetting(generalLightState.getDimSetting() - 1);
+        setBrightness();
     }
 
 	/**
-	 * set the brightness and broadcast to all.
-	 * if brightness < 10 this will call doLowestDim()
-	 * @param brightness the brightness to set (automagically internally clamped 0-100)
+	 * set the brightness based on the dim setting and broadcast to all.
+	 * if dimSetting is 1: call doLowestDim()
 	 */
-    public void setBrightness(int brightness) {
-		if (brightness < 10) {
+    public void setBrightness() {
+		if (generalLightState.getDimSetting() <= 1) {
 			doLowestDim();
+            generalLightState.setDimSetting(1);
 		}
 		else {
-			generalLightState.setBrightness(brightness);
+			switch (generalLightState.getDimSetting()) {
+				case 2 -> generalLightState.setBrightness(20);
+				case 3 -> generalLightState.setBrightness(60);
+				case 4 -> generalLightState.setBrightness(90);
+			}
+
 			System.out.print("Brightness set - " + generalLightState.getBrightness() + "...");
 			broadcastAll(generalLightState.getFullString());
 			System.out.println("done");
@@ -102,18 +109,19 @@ public abstract class LightController implements IMqttMessageListener {
     public void turnOn() {
         generalLightState.setMode(LightState.Mode.CCT); //             if in night mode this set will fail
         if (generalLightState.getMode() == LightState.Mode.NIGHT) { // and it will stay in night mode
-            generalLightState.setBrightness(10);
+            generalLightState.setDimSetting(1);
         }
         else {
-            generalLightState.setBrightness(80);
+            generalLightState.setDimSetting(4);
         }
         System.out.print("Light on ...");
-        broadcastAll(generalLightState.getFullString());
+        setBrightness();
         System.out.println("done");
         isOn = true;
     }
 
     public void turnOff() {
+        generalLightState.setDimSetting(0);
         generalLightState.setBrightness(0);
         System.out.print("Light off ...");
         broadcastAll(generalLightState.getFullString());
@@ -127,7 +135,8 @@ public abstract class LightController implements IMqttMessageListener {
 
     public void setDayMode() {
         if (generalLightState.exitNightMode() && isOn) { // only send the broadcast if we were in night mode to begin with
-            broadcastAll(generalLightState.getFullString());
+            setBrightness();
+//            broadcastAll(generalLightState.getFullString());
         }
     }
 
@@ -163,7 +172,8 @@ public abstract class LightController implements IMqttMessageListener {
             System.out.println("done");
         }
         else {
-            setBrightness(5);
+            generalLightState.setDimSetting(1);
+            setBrightness();
             isOn = true;
         }
 
@@ -178,7 +188,7 @@ public abstract class LightController implements IMqttMessageListener {
 
     public void setCCT(int cct) {
         generalLightState.setColorTemp(cct);
-        broadcastAll(generalLightState.getFullString());
+        setBrightness();
     }
 
     public void upLeftSingle() {
@@ -206,7 +216,8 @@ public abstract class LightController implements IMqttMessageListener {
         }
         else {
             generalLightState.setMode(LightState.Mode.CCT);
-            setBrightness(5);
+            generalLightState.setDimSetting(1);
+            setBrightness();
             isOn = true;
         }
     }
@@ -220,7 +231,8 @@ public abstract class LightController implements IMqttMessageListener {
     }
 
     public void upRightDouble() {
-        setBrightness(100);
+        generalLightState.setDimSetting(4);
+        setBrightness();
     }
 
     public void downLeftDouble() {
@@ -229,7 +241,8 @@ public abstract class LightController implements IMqttMessageListener {
 
     public void downRightDouble() {
         if (isOn){
-            setBrightness(5);
+            generalLightState.setDimSetting(1);
+            setBrightness();
         }
     }
 

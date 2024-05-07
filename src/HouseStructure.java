@@ -42,7 +42,7 @@ public class HouseStructure {
 
         isInitialized = true;
 
-        timer.scheduleAtFixedRate(CCTTask, 0, 1000*60*15); // every half hour
+        timer.scheduleAtFixedRate(CCTTask, 0, 1000*60*15); // every 15 minutes
     }
 
     public static void wholeHouseOff() {
