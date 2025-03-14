@@ -1,3 +1,4 @@
+package smartlights;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -90,6 +91,24 @@ public class DaylightDimmer implements Dimmer {
 		}
 
 		return state;
+	}
+
+	@Override
+	public void setIndex(int index) {
+		if (index > brightnesses.size() - 1) {
+			currentIndex = brightnesses.size() - 1;
+		}
+		else if (index < 0) {
+			currentIndex = 0;
+		}
+		else {
+			currentIndex = index;
+		}
+	}
+
+	@Override
+	public int getCurrentIndex() {
+		return currentIndex;
 	}
 
 }

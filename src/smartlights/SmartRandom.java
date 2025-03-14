@@ -1,3 +1,4 @@
+package smartlights;
 import java.util.*;
 
 public class SmartRandom {

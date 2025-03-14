@@ -1,3 +1,4 @@
+package smartlights;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -66,8 +67,22 @@ public class ListDimmer implements Dimmer {
 		return getRoomState();
 	}
 
+	@Override
 	public int getCurrentIndex() {
 		return currentIndex;
+	}
+
+	@Override
+	public void setIndex(int index) {
+		if (index > roomStates.size() - 1) {
+			currentIndex = roomStates.size() - 1;
+		}
+		else if (index < 0) {
+			currentIndex = 0;
+		}
+		else {
+			currentIndex = index;
+		}
 	}
 }
 

@@ -1,5 +1,7 @@
+package smartlights;
 import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator;
 import com.luckycatlabs.sunrisesunset.dto.Location;
+
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 
 import java.util.Calendar;

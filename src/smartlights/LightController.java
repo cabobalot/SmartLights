@@ -1,7 +1,12 @@
+package smartlights;
+
 import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+
+import smartlights.StateMachine.Signal;
+import smartlights.StateMachine.State;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -12,6 +17,8 @@ public abstract class LightController implements IMqttMessageListener {
     protected static HashMap<String, String> allRelayTopics = new HashMap<>();
     protected MqttAsyncClient client;
     protected boolean isOn = false; // TODO make this a robust state machine
+
+    protected StateMachine stateMachine = new StateMachine();
 
     protected Dimmer currentDimmer;
     protected DaylightDimmer daylightDimmer;
@@ -33,6 +40,8 @@ public abstract class LightController implements IMqttMessageListener {
             Main.printError(e);
             throw new RuntimeException(e);
         }
+
+        fillStateMachine();
     }
     @Override
     public void messageArrived(String topic, MqttMessage mqttMessage) {
@@ -79,15 +88,6 @@ public abstract class LightController implements IMqttMessageListener {
         }
 		System.out.println("Dim down");
         broadcastRoomState(currentDimmer.dimDown());
-    }
-
-	/**
-	 * default set brightness to 5 for all lights in group, override for different lowest dim.
-	 */
-    public void doLowestDim() {
-		System.out.print("Dim lowest");
-        broadcastRoomState(currentDimmer.dimMin());
-        System.out.println("done");
     }
 
     public void turnOn() {
@@ -192,9 +192,31 @@ public abstract class LightController implements IMqttMessageListener {
         // System.out.println("done");
     }
 
+    protected void enterOFF(Signal s) {
+	}
+
+	protected void enterCCT(Signal s) {
+	}
+
+	protected void enterColor(Signal s) {
+	}
+
+	protected void enterNightOff(Signal s) {
+	}
+
+	protected void enterNightOn(Signal s) {
+	}
+
+	protected void enterNightCCT(Signal s) {
+	}
+
+	protected void enterNightColor(Signal s) {
+	}
+
     public void setCCT(int cct) {
         daylightDimmer.setCCT(cct);
 
+        //TODO only broadcast if state is not off
         broadcastRoomState(); // will only change cct if the current dimmer is the daylight dimmer
     }
 
@@ -284,5 +306,39 @@ public abstract class LightController implements IMqttMessageListener {
         daylightDimmer = new DaylightDimmer(lightTopics.keySet());
 
         currentDimmer = daylightDimmer;
+    }
+
+    protected void fillStateMachine() {
+        // im so sorry for this. type saftey requires using the Signal 
+        // and State types, and the Flyweight pattern demands I dont 
+        // crete a bunch of extra objects. also I dont wanna write new
+        // everywhere.
+        Signal onSignal = new Signal(Signal.ON);
+        Signal offSignal = new Signal(Signal.OFF);
+        Signal nextSpecialSignal = new Signal(Signal.NEXT_SPECIAL);
+        Signal enterNightSignal = new Signal(Signal.ENTER_NIGHT);
+        Signal exitNightSignal = new Signal(Signal.EXIT_NIGHT);
+        Signal dimUpSignal = new Signal(Signal.DIM_UP);
+        Signal dimDownSignal = new Signal(Signal.DIM_DOWN);
+        Signal dimMinSignal = new Signal(Signal.DIM_MIN);
+        Signal dimMaxSignal = new Signal(Signal.DIM_MAX);
+
+        State offState = new State(State.OFF);
+        State cctState = new State(State.CCT);
+        State colorState = new State(State.COLOR);
+        State nightOffState = new State(State.NIGHT_OFF);
+        State nightOnState = new State(State.NIGHT_ON);
+        State nightCCTState = new State(State.NIGHT_CCT);
+        State nightColorState = new State(State.NIGHT_COLOR);
+
+
+        //TODO fill out these state transitions
+        // examples:
+        // off
+        stateMachine.setTransition(offState, onSignal, cctState, this::enterOFF);
+        stateMachine.setTransition(offState, nextSpecialSignal, colorState, this::enterColor);
+
+        // CCT
+        stateMachine.setTransition(cctState, offSignal, offState, this::enterOFF);
     }
 }
