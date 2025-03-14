@@ -3,7 +3,7 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 public class Main {
 
-    public static String broker = "tcp://192.168.1.20:1883";
+    public static String broker = "tcp://192.168.1.25:1883";
     public static final String clientID = "SmartLightJavaController";
     public static final int qos = 1;
 

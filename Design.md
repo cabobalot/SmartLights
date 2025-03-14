@@ -30,8 +30,9 @@ level of a room
   brightness etc
   * different brightness levels should be represented with a new state
     object - maybe state objects are constant
-  * a state may be applied to a single bulb or to a group of bulbs somehow
+  * a state may be applied to a single bulb or to a group of bulbs through the dimmer
 * a RoomState is a list of LightStates, one for each light
   * LightStates must be tied to an individual light
 * A RoomDimmer switches through RoomStates depending on the dimmer setting.
   * abstract interface
+* LightController has the large state machine to change dimmers and turn on/off
