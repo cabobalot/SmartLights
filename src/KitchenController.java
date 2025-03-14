@@ -21,6 +21,8 @@ public class KitchenController extends LightController {
         registerLightTopic("Kitchen5", "zigbee2mqtt/KitchenLight5/set");
         registerLightTopic("KitchenCabinet", "zigbee2mqtt/KitchenCabinet/set");
 
+        generateDimmers();
+
         try {
             Thread.sleep(500);
             turnOn();

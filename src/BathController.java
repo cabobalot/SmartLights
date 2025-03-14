@@ -16,6 +16,8 @@ public class BathController extends LightController {
 
         registerRelayTopic("BathFan", bathFanTopic);
 
+        generateDimmers();
+
         try {
             Thread.sleep(500);
             turnOn();

@@ -1,7 +1,7 @@
 public class LightState {
     public enum Mode {
         CCT,
-        COLOR,
+        COLOR
     }
 
     private final Mode mode;

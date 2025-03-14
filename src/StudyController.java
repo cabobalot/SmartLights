@@ -1,3 +1,9 @@
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 
 public class StudyController extends LightController {
@@ -9,11 +15,13 @@ public class StudyController extends LightController {
         registerLightTopic("Study3", "zigbee2mqtt/StudyLight3/set");
         registerLightTopic("Study4", "zigbee2mqtt/StudyLight4/set");
 
+        generateDimmers();
+
         try {
             Thread.sleep(500);
-            turnOff();
-            Thread.sleep(500);
             turnOn();
+            Thread.sleep(500);
+            turnOff();
         }
         catch (InterruptedException e) {
             e.printStackTrace();

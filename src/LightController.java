@@ -11,11 +11,20 @@ public abstract class LightController implements IMqttMessageListener {
     protected static HashMap<String, String> allLightTopics = new HashMap<>();
     protected static HashMap<String, String> allRelayTopics = new HashMap<>();
     protected MqttAsyncClient client;
-    protected LightState generalLightState = new LightState();
-    protected boolean isOn = false;
+    protected boolean isOn = false; // TODO make this a robust state machine
+
+    protected Dimmer currentDimmer;
+    protected DaylightDimmer daylightDimmer;
+    protected ListDimmer colorDimmer;
+    protected LightState offState = new LightState(0, 0);
 
     protected SmartRandom random = new SmartRandom(6, 3);
 
+    /**
+     * Child classes should define a dimmer
+     * @param client
+     * @param topic
+     */
     public LightController(MqttAsyncClient client, String topic) {
         this.client = client;
         try {
@@ -61,83 +70,80 @@ public abstract class LightController implements IMqttMessageListener {
             return;
         }
 		System.out.println("Dim up");
-        generalLightState.setDimSetting(generalLightState.getDimSetting() + 1);
-        setBrightness();
+        broadcastRoomState(currentDimmer.dimUp());
     }
 
     public void dimDown() {
         if (!isOn) {
             return;
         }
-		System.out.println("Dim up");
-        generalLightState.setDimSetting(generalLightState.getDimSetting() - 1);
-        setBrightness();
+		System.out.println("Dim down");
+        broadcastRoomState(currentDimmer.dimDown());
     }
-
-	/**
-	 * set the brightness based on the dim setting and broadcast to all.
-	 * if dimSetting is 1: call doLowestDim()
-	 */
-    public void setBrightness() {
-		if (generalLightState.getDimSetting() <= 1) {
-			doLowestDim();
-            generalLightState.setDimSetting(1);
-		}
-		else {
-			switch (generalLightState.getDimSetting()) {
-				case 2 -> generalLightState.setBrightness(20);
-				case 3 -> generalLightState.setBrightness(60);
-				case 4 -> generalLightState.setBrightness(90);
-			}
-
-			System.out.print("Brightness set - " + generalLightState.getBrightness() + "...");
-			broadcastAll(generalLightState.getFullString());
-			System.out.println("done");
-		}
-	}
 
 	/**
 	 * default set brightness to 5 for all lights in group, override for different lowest dim.
 	 */
     public void doLowestDim() {
-        generalLightState.setBrightness(5);
-		System.out.print("Dim lowest - " + generalLightState.getBrightness() + "...");
-        broadcastAll(generalLightState.getFullString());
+		System.out.print("Dim lowest");
+        broadcastRoomState(currentDimmer.dimMin());
         System.out.println("done");
     }
 
     public void turnOn() {
-        generalLightState.setMode(LightState.Mode.CCT); //             if in night mode this set will fail
-        if (generalLightState.getMode() == LightState.Mode.NIGHT) { // and it will stay in night mode
-            generalLightState.setDimSetting(1);
-        }
-        else {
-            generalLightState.setDimSetting(4);
-        }
+        // TODO state machine
+        // generalLightState.setMode(LightState.Mode.CCT); //             if in night mode this set will fail
+        // if (generalLightState.getMode() == LightState.Mode.NIGHT) { // and it will stay in night mode
+        //     generalLightState.setDimSetting(1);
+        // }
+        // else {
+        //     generalLightState.setDimSetting(4);
+        // }
         System.out.print("Light on ...");
-        setBrightness();
+        broadcastRoomState(currentDimmer.firstOn());
         System.out.println("done");
         isOn = true;
     }
 
     public void turnOff() {
-        generalLightState.setDimSetting(0);
-        generalLightState.setBrightness(0);
         System.out.print("Light off ...");
-        broadcastAll(generalLightState.getFullString());
+        broadcastAll(offState.getFullString());
         System.out.println("done");
         isOn = false;
     }
 
     public void setNightMode() {
-        generalLightState.setMode(LightState.Mode.NIGHT);
+        // generalLightState.setMode(LightState.Mode.NIGHT);
     }
 
     public void setDayMode() {
-        if (generalLightState.exitNightMode() && isOn) { // only send the broadcast if we were in night mode to begin with
-            setBrightness();
-//            broadcastAll(generalLightState.getFullString());
-        }
+//         if (generalLightState.exitNightMode() && isOn) { // only send the broadcast if we were in night mode to begin with
+//             setBrightness();
+// //            broadcastAll(generalLightState.getFullString());
+//         }
+    }
+
+    /**
+     * broadcast the mqtt message for the current state in the current dimmer
+     */
+    public void broadcastRoomState() {
+        broadcastRoomState(currentDimmer.getRoomState());
+    }
+
+    /**
+     * broadcast the mqtt message for the roomState
+     */
+    public void broadcastRoomState(RoomState room) {
+        room.lightStates.forEach((String name, LightState state) -> {
+            MqttMessage message = new MqttMessage(state.getFullString().getBytes());
+            message.setQos(Main.qos);
+            try {
+                String topic = lightTopics.get(name);
+                client.publish(topic, message);
+            } catch (MqttException e) {
+                Main.printError(e);
+            }
+        });
     }
 
     public void broadcastAll(String command) {
@@ -163,32 +169,33 @@ public abstract class LightController implements IMqttMessageListener {
     }
 
     public void startColorMode() {
-        generalLightState.setMode(LightState.Mode.COLOR);
-        generalLightState.setHue(random.getRandomInt() * 60); //TODO make this better lol
-        generalLightState.setSaturation(70);
-        if (isOn) {
-            System.out.print("color " + generalLightState.getHue() + " ...");
-            broadcastAll(generalLightState.getFullString());
-            System.out.println("done");
-        }
-        else {
-            generalLightState.setDimSetting(1);
-            setBrightness();
-            isOn = true;
-        }
+        // generalLightState.setMode(LightState.Mode.COLOR);
+        // generalLightState.setHue(random.getRandomInt() * 60); //TODO make this better lol
+        // generalLightState.setSaturation(70);
+        // if (isOn) {
+        //     System.out.print("color " + generalLightState.getHue() + " ...");
+        //     broadcastAll(generalLightState.getFullString());
+        //     System.out.println("done");
+        // }
+        // else {
+        //     generalLightState.setDimSetting(1);
+        //     setBrightness();
+        //     isOn = true;
+        // }
 
     }
 
     public void stopColorMode() {
-        System.out.print("color off ...");
-        generalLightState.setMode(LightState.Mode.CCT);
-        broadcastAll(generalLightState.getFullString());
-        System.out.println("done");
+        // System.out.print("color off ...");
+        // generalLightState.setMode(LightState.Mode.CCT);
+        // broadcastAll(generalLightState.getFullString());
+        // System.out.println("done");
     }
 
     public void setCCT(int cct) {
-        generalLightState.setColorTemp(cct);
-        setBrightness();
+        daylightDimmer.setCCT(cct);
+
+        broadcastRoomState(); // will only change cct if the current dimmer is the daylight dimmer
     }
 
     public void upLeftSingle() {
@@ -215,24 +222,23 @@ public abstract class LightController implements IMqttMessageListener {
             dimDown();
         }
         else {
-            generalLightState.setMode(LightState.Mode.CCT);
-            generalLightState.setDimSetting(1);
-            setBrightness();
-            isOn = true;
+            // generalLightState.setMode(LightState.Mode.CCT);
+            // generalLightState.setDimSetting(1);
+            // setBrightness();
+            // isOn = true;
         }
     }
 
     public void upLeftDouble() {
-        if (generalLightState.getMode() != LightState.Mode.COLOR) {
-            startColorMode();
-        } else {
-            stopColorMode();
-        }
+        // if (generalLightState.getMode() != LightState.Mode.COLOR) {
+        //     startColorMode();
+        // } else {
+        //     stopColorMode();
+        // }
     }
 
     public void upRightDouble() {
-        generalLightState.setDimSetting(4);
-        setBrightness();
+        broadcastRoomState(currentDimmer.dimMax());
     }
 
     public void downLeftDouble() {
@@ -241,8 +247,7 @@ public abstract class LightController implements IMqttMessageListener {
 
     public void downRightDouble() {
         if (isOn){
-            generalLightState.setDimSetting(1);
-            setBrightness();
+            broadcastRoomState(currentDimmer.dimMin());
         }
     }
 
@@ -269,5 +274,15 @@ public abstract class LightController implements IMqttMessageListener {
 
     public void registerRelayTopic(String name, String topic) {
         allRelayTopics.put(name, topic);
+    }
+
+    /**
+     * helper to create the default dimmers. only do this
+     * after registering the light topics.
+     */
+    protected void generateDimmers() {
+        daylightDimmer = new DaylightDimmer(lightTopics.keySet());
+
+        currentDimmer = daylightDimmer;
     }
 }

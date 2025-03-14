@@ -11,6 +11,8 @@ public class LoungeController extends LightController {
         registerLightTopic("Lounge2", "zigbee2mqtt/LoungeLight2/set");
         registerLightTopic("Lounge3", "zigbee2mqtt/LoungeLight3/set");
 
+        generateDimmers();
+
         try {
             Thread.sleep(500);
             turnOn();
