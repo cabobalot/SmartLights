@@ -64,7 +64,7 @@ public class ListDimmer implements Dimmer {
 	 * This implementation starts on max brightness
 	 */
 	public RoomState firstOn() {
-		currentIndex = roomStates.size() - 1;
+		currentIndex = 0;
 		return getRoomState();
 	}
 

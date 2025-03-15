@@ -19,8 +19,9 @@ public class LoftController extends LightController {
         registerLightTopic("Loft1", "zigbee2mqtt/LoftLight1/set");
         registerLightTopic("Loft2", "zigbee2mqtt/LoftLight2/set");
 
-        Set<String> lightNames = lightTopics.keySet();
+        generateDimmers(); // generate defaults and then replace them below
 
+        Set<String> lightNames = lightTopics.keySet();
         List<Map<String, Integer>> brightnesses = new ArrayList<>();
 		for (int i = 0; i < Dimmer.niceBrightnesses.length; i++) {
 			Map<String, Integer> toAdd = new HashMap<>();
@@ -33,9 +34,8 @@ public class LoftController extends LightController {
 			}
 			brightnesses.add(toAdd);
 		}
-
         daylightDimmer = new DaylightDimmer(lightNames, brightnesses);
-        currentDimmer = daylightDimmer;
+
 
         try {
             Thread.sleep(500);
