@@ -11,16 +11,16 @@ public class StateMachine {
 	protected State currentState = new State(State.OFF);
 
 	public StateMachine() {
-		// create all transitions with empty functions and a return to off
+		// create all transitions with empty functions and stays in the same state
 
 		// this is immutable :(
 		// transitions = Collections.nCopies(7, Collections.nCopies(9, new Pair<>(new State(State.OFF), this::n)));
 
-		Pair<State, BiConsumer<State, Signal>> p = new Pair<>(new State(State.OFF), this::n); // default transition
 		transitions = new ArrayList<>();
-		for (int i = 0; i < State.SIGNAL_COUNT; i++) {
+		for (int i = 0; i < State.SIGNAL_COUNT; i++) { // for each possible current state
+			Pair<State, BiConsumer<State, Signal>> p = new Pair<>(new State(i), this::n); // default transition to same state
 			List<Pair<State, BiConsumer<State, Signal>>> listToAdd = new ArrayList<>();
-			for (int j = 0; j < Signal.SIGNAL_COUNT; j++) {
+			for (int j = 0; j < Signal.SIGNAL_COUNT; j++) { // for each signal type
 				listToAdd.add(p);
 			}
 			transitions.add(listToAdd);
@@ -35,6 +35,8 @@ public class StateMachine {
 		Pair<State, BiConsumer<State, Signal>> p = transitions.get(currentState.state).get(s.signal);
 		State oldState = currentState;
 		currentState = p.first;
+		// System.out.print("StateMachine in: " + Thread.currentThread().getStackTrace()[3].getClassName() + " | ");
+		// System.out.println("State transition. old:" + oldState.state + " new:" + currentState.state + " signal:" + s.signal);
 
 		p.second.accept(oldState, s);
 	}

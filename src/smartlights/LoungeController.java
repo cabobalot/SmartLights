@@ -17,8 +17,8 @@ public class LoungeController extends LightController {
         try {
             Thread.sleep(500);
             turnOn();
-            Thread.sleep(500);
-            turnOff();
+            // Thread.sleep(500);
+            // turnOff();
         }
         catch (InterruptedException e) {
             e.printStackTrace();

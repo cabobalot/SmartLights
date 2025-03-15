@@ -221,7 +221,7 @@ public abstract class LightController implements IMqttMessageListener {
                 daylightDimmer.setIndex(currentDimmer.getCurrentIndex());
                 break;
             default:
-                System.out.println("entered CCT with a weird signal: " + signal.signal);
+                System.out.println("entered CCT state with a weird signal: " + signal.signal);
                 break;
         }
         currentDimmer = daylightDimmer;
@@ -256,7 +256,7 @@ public abstract class LightController implements IMqttMessageListener {
                 break;
 
             default:
-                System.out.println("WARNING: entered CCT with a weird signal: " + signal.signal);
+                System.out.println("WARNING: entered Color state with a weird signal: " + signal.signal);
                 break;
         }
         currentDimmer = colorDimmer;

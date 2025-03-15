@@ -42,9 +42,9 @@ public class HouseStructure {
         bath = new BathController(mqttClient);
         study = new StudyController(mqttClient);
 
-        isInitialized = true;
-
         timer.scheduleAtFixedRate(CCTTask, 0, 1000*60*15); // every 15 minutes
+
+        isInitialized = true;
     }
 
     public static void wholeHouseOff() {
