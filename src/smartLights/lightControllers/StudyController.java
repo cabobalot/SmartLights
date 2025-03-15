@@ -1,4 +1,4 @@
-package smartlights;
+package smartLights.lightControllers;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

@@ -1,9 +1,12 @@
-package smartlights;
+package smartLights.dimmers;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import smartLights.LightState;
+import smartLights.RoomState;
 
 public class DaylightDimmer implements Dimmer {
 	private Set<String> lightNames;

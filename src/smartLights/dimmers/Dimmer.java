@@ -1,4 +1,7 @@
-package smartlights;
+package smartLights.dimmers;
+
+import smartLights.RoomState;
+
 public interface Dimmer {
 
 	public static final int[] niceBrightnesses = {5, 20, 50, 90};

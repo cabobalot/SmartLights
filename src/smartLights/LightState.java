@@ -1,4 +1,4 @@
-package smartlights;
+package smartLights;
 public class LightState {
     public enum Mode {
         CCT,

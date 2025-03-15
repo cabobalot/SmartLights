@@ -1,4 +1,4 @@
-package smartlights;
+package smartLights;
 import java.util.HashMap;
 import java.util.Map;
 

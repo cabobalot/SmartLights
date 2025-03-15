@@ -1,12 +1,20 @@
-package smartlights;
+package smartLights.lightControllers;
 
 import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-import smartlights.StateMachine.Signal;
-import smartlights.StateMachine.State;
+import smartLights.LightState;
+import smartLights.Main;
+import smartLights.RoomState;
+import smartLights.SmartRandom;
+import smartLights.StateMachine;
+import smartLights.StateMachine.Signal;
+import smartLights.StateMachine.State;
+import smartLights.dimmers.DaylightDimmer;
+import smartLights.dimmers.Dimmer;
+import smartLights.dimmers.ListDimmer;
 
 import java.util.ArrayList;
 import java.util.Arrays;

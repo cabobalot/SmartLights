@@ -1,7 +1,10 @@
-package smartlights;
+package smartLights.dimmers;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
+import smartLights.LightState;
+import smartLights.RoomState;
 
 // Maybe this class shouldn't exist, and instead we should create more specific dimmers...
 public class ListDimmer implements Dimmer {

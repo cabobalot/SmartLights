@@ -1,5 +1,7 @@
-package smartlights;
+package smartLights.lightControllers;
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
+
+import smartLights.HouseStructure;
 
 
 public class LoungeController extends LightController {

@@ -1,6 +1,13 @@
-package smartlights;
+package smartLights;
 import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator;
 import com.luckycatlabs.sunrisesunset.dto.Location;
+
+import smartLights.lightControllers.BathController;
+import smartLights.lightControllers.KitchenController;
+import smartLights.lightControllers.LoftController;
+import smartLights.lightControllers.LoftSecondController;
+import smartLights.lightControllers.LoungeController;
+import smartLights.lightControllers.StudyController;
 
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 

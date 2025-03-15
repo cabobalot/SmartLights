@@ -1,4 +1,4 @@
-package smartlights;
+package smartLights.lightControllers;
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 

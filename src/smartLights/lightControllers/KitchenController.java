@@ -1,7 +1,9 @@
-package smartlights;
+package smartLights.lightControllers;
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+
+import smartLights.SmartRandom;
 
 import java.util.HashMap;
 import java.util.Map;
