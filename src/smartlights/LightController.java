@@ -16,14 +16,13 @@ public abstract class LightController implements IMqttMessageListener {
     protected static HashMap<String, String> allLightTopics = new HashMap<>();
     protected static HashMap<String, String> allRelayTopics = new HashMap<>();
     protected MqttAsyncClient client;
-    protected boolean isOn = false; // TODO make this a robust state machine
 
     protected StateMachine stateMachine = new StateMachine();
 
     protected Dimmer currentDimmer;
     protected DaylightDimmer daylightDimmer;
     protected ListDimmer colorDimmer;
-    protected LightState offState = new LightState(0, 0);
+    protected LightState offState = new LightState(0, 0); // object to send when the light needs to be off
 
     protected SmartRandom random = new SmartRandom(6, 3);
 
@@ -43,6 +42,7 @@ public abstract class LightController implements IMqttMessageListener {
 
         fillStateMachine();
     }
+
     @Override
     public void messageArrived(String topic, MqttMessage mqttMessage) {
         System.out.println(topic + " : " + mqttMessage);
@@ -75,99 +75,34 @@ public abstract class LightController implements IMqttMessageListener {
     }
 
     public void dimUp() {
-        if (!isOn) {
-            return;
-        }
-		System.out.println("Dim up");
-        broadcastRoomState(currentDimmer.dimUp());
+        System.out.println("Dim up");
+        stateMachine.transition(new Signal(Signal.DIM_UP));
     }
 
     public void dimDown() {
-        if (!isOn) {
-            return;
-        }
 		System.out.println("Dim down");
-        broadcastRoomState(currentDimmer.dimDown());
+        stateMachine.transition(new Signal(Signal.DIM_DOWN));
     }
 
     public void turnOn() {
-        // TODO state machine
-        // generalLightState.setMode(LightState.Mode.CCT); //             if in night mode this set will fail
-        // if (generalLightState.getMode() == LightState.Mode.NIGHT) { // and it will stay in night mode
-        //     generalLightState.setDimSetting(1);
-        // }
-        // else {
-        //     generalLightState.setDimSetting(4);
-        // }
         System.out.print("Light on ...");
-        broadcastRoomState(currentDimmer.firstOn());
+        stateMachine.transition(new Signal(Signal.ON));
         System.out.println("done");
-        isOn = true;
     }
 
     public void turnOff() {
-        System.out.print("Light off ...");
-        broadcastAll(offState.getFullString());
-        System.out.println("done");
-        isOn = false;
+        stateMachine.transition(new Signal(Signal.OFF));
     }
 
     public void setNightMode() {
-        // generalLightState.setMode(LightState.Mode.NIGHT);
+        stateMachine.transition(new Signal(Signal.ENTER_NIGHT));
     }
 
     public void setDayMode() {
-//         if (generalLightState.exitNightMode() && isOn) { // only send the broadcast if we were in night mode to begin with
-//             setBrightness();
-// //            broadcastAll(generalLightState.getFullString());
-//         }
+        stateMachine.transition(new Signal(Signal.EXIT_NIGHT));
     }
 
-    /**
-     * broadcast the mqtt message for the current state in the current dimmer
-     */
-    public void broadcastRoomState() {
-        broadcastRoomState(currentDimmer.getRoomState());
-    }
-
-    /**
-     * broadcast the mqtt message for the roomState
-     */
-    public void broadcastRoomState(RoomState room) {
-        room.lightStates.forEach((String name, LightState state) -> {
-            MqttMessage message = new MqttMessage(state.getFullString().getBytes());
-            message.setQos(Main.qos);
-            try {
-                String topic = lightTopics.get(name);
-                client.publish(topic, message);
-            } catch (MqttException e) {
-                Main.printError(e);
-            }
-        });
-    }
-
-    public void broadcastAll(String command) {
-        lightTopics.forEach((String name, String topic) -> {
-            MqttMessage message = new MqttMessage(command.getBytes());
-            message.setQos(Main.qos);
-            try {
-                client.publish(topic, message);
-            } catch (MqttException e) {
-                Main.printError(e);
-            }
-        });
-    }
-
-    public void broadcast(String command, String topic) {
-        MqttMessage message = new MqttMessage(command.getBytes());
-        message.setQos(Main.qos);
-        try {
-            client.publish(topic, message);
-        } catch (MqttException e) {
-            Main.printError(e);
-        }
-    }
-
+    // are these needed?
     public void startColorMode() {
         // generalLightState.setMode(LightState.Mode.COLOR);
         // generalLightState.setHue(random.getRandomInt() * 60); //TODO make this better lol
@@ -184,7 +119,7 @@ public abstract class LightController implements IMqttMessageListener {
         // }
 
     }
-
+    // are these needed?
     public void stopColorMode() {
         // System.out.print("color off ...");
         // generalLightState.setMode(LightState.Mode.CCT);
@@ -192,42 +127,171 @@ public abstract class LightController implements IMqttMessageListener {
         // System.out.println("done");
     }
 
-    protected void enterOFF(Signal s) {
+    /**
+     * broadcast the mqtt message for the current state in the current dimmer
+     */
+    protected void broadcastRoomState() {
+        broadcastRoomState(currentDimmer.getRoomState());
+    }
+
+    /**
+     * broadcast the mqtt message for the roomState
+     */
+    protected void broadcastRoomState(RoomState room) {
+        room.lightStates.forEach((String name, LightState state) -> {
+            MqttMessage message = new MqttMessage(state.getFullString().getBytes());
+            message.setQos(Main.qos);
+            try {
+                String topic = lightTopics.get(name);
+                client.publish(topic, message);
+            } catch (MqttException e) {
+                Main.printError(e);
+            }
+        });
+    }
+
+    protected void broadcastAll(String command) {
+        lightTopics.forEach((String name, String topic) -> {
+            MqttMessage message = new MqttMessage(command.getBytes());
+            message.setQos(Main.qos);
+            try {
+                client.publish(topic, message);
+            } catch (MqttException e) {
+                Main.printError(e);
+            }
+        });
+    }
+
+    protected void broadcast(String command, String topic) {
+        MqttMessage message = new MqttMessage(command.getBytes());
+        message.setQos(Main.qos);
+        try {
+            client.publish(topic, message);
+        } catch (MqttException e) {
+            Main.printError(e);
+        }
+    }
+
+    /*
+     * Below are the state machine functions.
+     * These happen on entering a state due to a signal s. Do not call them directly.
+     * They should usually switch the dimmer and/or broadcast the mqtt messages.
+     */
+
+    protected void enterOFF(State oldState, Signal s) {
+        System.out.print("Light off ...");
+        broadcastAll(offState.getFullString());
+        System.out.println("done");
 	}
 
-	protected void enterCCT(Signal s) {
+	protected void enterCCT(State oldState, Signal signal) {
+        switch (signal.signal) {
+            case Signal.DIM_DOWN:
+                if (oldState.state == State.OFF) {
+                    daylightDimmer.dimMin();
+                }
+                else {
+                    daylightDimmer.dimDown(); 
+                }
+                break;
+                
+            case Signal.DIM_MIN:
+                daylightDimmer.dimMin();
+                break;
+
+            case Signal.DIM_UP:
+                if (oldState.state == State.OFF) {
+                    daylightDimmer.dimMax();
+                }
+                else { 
+                    daylightDimmer.dimUp(); 
+                }
+                break;
+
+            case Signal.DIM_MAX:
+                daylightDimmer.dimMax();
+                break;
+
+            case Signal.ON:
+                daylightDimmer.firstOn();
+                break;
+
+            case Signal.EXIT_NIGHT:
+            case Signal.NEXT_SPECIAL:
+                daylightDimmer.setIndex(currentDimmer.getCurrentIndex());
+                break;
+            default:
+                System.out.println("entered CCT with a weird signal: " + signal.signal);
+                break;
+        }
+        currentDimmer = daylightDimmer;
+        broadcastRoomState();
 	}
 
-	protected void enterColor(Signal s) {
+	protected void enterColor(State oldState, Signal signal) {
+        switch (signal.signal) {
+            case Signal.DIM_DOWN:
+                colorDimmer.dimDown();
+                break;
+
+            case Signal.DIM_MIN:
+                colorDimmer.dimMin();
+                break;
+
+            case Signal.DIM_UP:
+                colorDimmer.dimUp();
+
+            case Signal.DIM_MAX:
+                colorDimmer.dimMax();
+                break;
+
+            case Signal.EXIT_NIGHT:
+            case Signal.NEXT_SPECIAL:
+                if (oldState.state == State.OFF) {
+                    colorDimmer.firstOn();
+                }
+                else {
+                    colorDimmer.setIndex(currentDimmer.getCurrentIndex());
+                }
+                break;
+
+            default:
+                System.out.println("WARNING: entered CCT with a weird signal: " + signal.signal);
+                break;
+        }
+        currentDimmer = colorDimmer;
+        broadcastRoomState();
 	}
 
-	protected void enterNightOff(Signal s) {
+	protected void enterNightOff(State oldState, Signal signal) {
 	}
 
-	protected void enterNightOn(Signal s) {
+	protected void enterNightOn(State oldState, Signal signal) {
 	}
 
-	protected void enterNightCCT(Signal s) {
+	protected void enterNightCCT(State oldState, Signal signal) {
 	}
 
-	protected void enterNightColor(Signal s) {
+	protected void enterNightColor(State oldState, Signal signal) {
 	}
 
+    /**
+     * Broadcast the daylight CCT if in CCT mode.
+     */
     public void setCCT(int cct) {
         daylightDimmer.setCCT(cct);
 
-        //TODO only broadcast if state is not off
-        broadcastRoomState(); // will only change cct if the current dimmer is the daylight dimmer
+        if (!stateMachine.isAnyOff()) {
+            broadcastRoomState(); // will only change anything if the current dimmer is the daylight dimmer
+        }
     }
 
     public void upLeftSingle() {
-        if (isOn) {
+        if (stateMachine.isAnyOn()) {
             turnOff();
-            isOn = false;
         }
         else {
             turnOn();
-            isOn = true;
         }
     }
 
@@ -240,27 +304,15 @@ public abstract class LightController implements IMqttMessageListener {
     }
 
     public void downRightSingle() {
-        if (isOn) {
-            dimDown();
-        }
-        else {
-            // generalLightState.setMode(LightState.Mode.CCT);
-            // generalLightState.setDimSetting(1);
-            // setBrightness();
-            // isOn = true;
-        }
+        dimDown();
     }
 
     public void upLeftDouble() {
-        // if (generalLightState.getMode() != LightState.Mode.COLOR) {
-        //     startColorMode();
-        // } else {
-        //     stopColorMode();
-        // }
+        stateMachine.transition(new Signal(Signal.NEXT_SPECIAL));
     }
 
     public void upRightDouble() {
-        broadcastRoomState(currentDimmer.dimMax());
+        stateMachine.transition(new Signal(Signal.DIM_MAX));
     }
 
     public void downLeftDouble() {
@@ -268,9 +320,7 @@ public abstract class LightController implements IMqttMessageListener {
     }
 
     public void downRightDouble() {
-        if (isOn){
-            broadcastRoomState(currentDimmer.dimMin());
-        }
+        stateMachine.transition(new Signal(Signal.DIM_MIN));
     }
 
     public void upLeftLong() {
@@ -304,12 +354,13 @@ public abstract class LightController implements IMqttMessageListener {
      */
     protected void generateDimmers() {
         daylightDimmer = new DaylightDimmer(lightTopics.keySet());
+        colorDimmer = new ListDimmer(lightTopics.keySet());
 
         currentDimmer = daylightDimmer;
     }
 
     protected void fillStateMachine() {
-        // im so sorry for this. type saftey requires using the Signal 
+        // im so sorry for this. type safety requires using the Signal 
         // and State types, and the Flyweight pattern demands I dont 
         // crete a bunch of extra objects. also I dont wanna write new
         // everywhere.
@@ -332,13 +383,37 @@ public abstract class LightController implements IMqttMessageListener {
         State nightColorState = new State(State.NIGHT_COLOR);
 
 
-        //TODO fill out these state transitions
-        // examples:
         // off
-        stateMachine.setTransition(offState, onSignal, cctState, this::enterOFF);
+        stateMachine.setTransition(offState, onSignal, cctState, this::enterCCT);
         stateMachine.setTransition(offState, nextSpecialSignal, colorState, this::enterColor);
+        stateMachine.setTransition(offState, enterNightSignal, nightOffState, this::enterNightOff);
+        stateMachine.setTransition(offState, dimMaxSignal, cctState, this::enterCCT);
+        stateMachine.setTransition(offState, dimMinSignal, cctState, this::enterCCT);
+        stateMachine.setTransition(offState, dimUpSignal, cctState, this::enterCCT);
+        stateMachine.setTransition(offState, dimDownSignal, cctState, this::enterCCT);
 
         // CCT
         stateMachine.setTransition(cctState, offSignal, offState, this::enterOFF);
+        stateMachine.setTransition(cctState, enterNightSignal, nightOffState, this::enterNightOff);
+        stateMachine.setTransition(cctState, nextSpecialSignal, colorState, this::enterColor);
+        // loopback dim signals
+        stateMachine.setTransition(cctState, dimMaxSignal, cctState, this::enterCCT);
+        stateMachine.setTransition(cctState, dimMinSignal, cctState, this::enterCCT);
+        stateMachine.setTransition(cctState, dimUpSignal, cctState, this::enterCCT);
+        stateMachine.setTransition(cctState, dimDownSignal, cctState, this::enterCCT);
+
+        // Color
+        stateMachine.setTransition(colorState, offSignal, offState, this::enterOFF);
+        stateMachine.setTransition(colorState, enterNightSignal, nightOffState, this::enterNightOff);
+        stateMachine.setTransition(colorState, nextSpecialSignal, cctState, this::enterCCT);
+        // loopback dim signals
+        stateMachine.setTransition(colorState, dimMaxSignal, colorState, this::enterColor);
+        stateMachine.setTransition(colorState, dimMinSignal, colorState, this::enterColor);
+        stateMachine.setTransition(colorState, dimUpSignal, colorState, this::enterColor);
+        stateMachine.setTransition(colorState, dimDownSignal, colorState, this::enterColor);
+
+
+
+
     }
 }

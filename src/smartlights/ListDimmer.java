@@ -3,12 +3,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+// Maybe this class shouldn't exist, and instead we should create more specific dimmers...
 public class ListDimmer implements Dimmer {
 	protected List<RoomState> roomStates;
 	protected int currentIndex = 0;
 
 	/**
-	 * create a generic dimming list
+	 * create a generic dimming list in magenta
 	 * @param lightNames
 	 */
 	public ListDimmer(Set<String> lightNames) {
@@ -16,7 +17,7 @@ public class ListDimmer implements Dimmer {
 		for (int i = 0; i < 4; i++) {
 			RoomState room = new RoomState();
 			// create one state object and duplicate the pointer for every light
-			LightState state = new LightState(niceBrightnesses[i], 300);
+			LightState state = new LightState(niceBrightnesses[i], 300, 100);
 			for (String name : lightNames) {
 				room.lightStates.put(name, state);
 			}
