@@ -4,7 +4,7 @@ import smartLights.RoomState;
 
 public interface Dimmer {
 
-	public static final int[] niceBrightnesses = {5, 20, 50, 90};
+	public static final int[] niceBrightnesses = {5, 20, 100, 230};
 
 	public RoomState dimUp();
 

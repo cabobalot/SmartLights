@@ -13,12 +13,12 @@ public class LightState {
 
     /**
      * create in CCT mode
-     * @param brightness range: 0-100
+     * @param brightness range: 0-254
      * @param colorTemp range: 150=cool - 500=warm, 
      */
     public LightState(int brightness, int colorTemp) {
         this.mode = Mode.CCT;
-        this.brightness = limit(brightness, 0, 100);
+        this.brightness = limit(brightness, 0, 254);
         this.colorTemp = limit(colorTemp, 150, 500); // 500 = warm, 150 = cool
 
         this.hue = -1;
@@ -27,13 +27,13 @@ public class LightState {
 
     /**
      * create in color mode
-     * @param brightness range: 0-100
+     * @param brightness range: 0-254
      * @param hue range: 0-360
      * @param saturation range: 0-100
      */
     public LightState(int brightness, int hue, int saturation) {
         this.mode = Mode.COLOR;
-        this.brightness = limit(brightness, 0, 100);
+        this.brightness = limit(brightness, 0, 254);
         this.hue = limit(hue, 0, 360);
         this.saturation = limit(saturation, 0, 100);
 
