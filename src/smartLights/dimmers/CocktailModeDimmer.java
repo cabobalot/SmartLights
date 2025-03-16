@@ -1,12 +1,9 @@
 package smartLights.dimmers;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import smartLights.LightState;
 import smartLights.RoomState;
-import smartLights.SmartRandom;
 
 public class CocktailModeDimmer implements Dimmer {
 	private int currentIndex = 0;

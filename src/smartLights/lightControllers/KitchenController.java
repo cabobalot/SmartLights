@@ -6,7 +6,6 @@ import smartLights.StateMachine.Signal;
 import smartLights.StateMachine.State;
 import smartLights.dimmers.CocktailModeDimmer;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;

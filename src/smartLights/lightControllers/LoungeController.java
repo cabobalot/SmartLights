@@ -2,7 +2,6 @@ package smartLights.lightControllers;
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 
 import smartLights.HouseStructure;
-import smartLights.dimmers.ColorDimmer;
 
 
 public class LoungeController extends LightController {
