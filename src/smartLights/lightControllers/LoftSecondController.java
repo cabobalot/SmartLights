@@ -1,8 +1,5 @@
 package smartLights.lightControllers;
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
-
-import java.util.Arrays;
 
 public class LoftSecondController extends LightController {
 

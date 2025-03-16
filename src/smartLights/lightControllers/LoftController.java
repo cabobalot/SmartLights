@@ -1,9 +1,8 @@
 package smartLights.lightControllers;
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import smartLights.HouseStructure;
+import smartLights.dimmers.ColorDimmer;
 import smartLights.dimmers.DaylightDimmer;
 import smartLights.dimmers.Dimmer;
 
@@ -14,8 +13,6 @@ import java.util.Map;
 import java.util.Set;
 
 public class LoftController extends LightController {
-
-    private int dimVal = 4;
 
     public LoftController(MqttAsyncClient client) {
         super(client, "zigbee2mqtt/LoftSwitch/action");
@@ -39,6 +36,7 @@ public class LoftController extends LightController {
 			brightnesses.add(toAdd);
 		}
         daylightDimmer = new DaylightDimmer(lightNames, brightnesses);
+        colorDimmer = new ColorDimmer(lightNames, brightnesses);
 
 
         try {

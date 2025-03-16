@@ -1,6 +1,5 @@
 package smartLights;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
 
@@ -17,7 +16,7 @@ public class StateMachine {
 		// transitions = Collections.nCopies(7, Collections.nCopies(9, new Pair<>(new State(State.OFF), this::n)));
 
 		transitions = new ArrayList<>();
-		for (int i = 0; i < State.SIGNAL_COUNT; i++) { // for each possible current state
+		for (int i = 0; i < State.STATE_COUNT; i++) { // for each possible current state
 			Pair<State, BiConsumer<State, Signal>> p = new Pair<>(new State(i), this::n); // default transition to same state
 			List<Pair<State, BiConsumer<State, Signal>>> listToAdd = new ArrayList<>();
 			for (int j = 0; j < Signal.SIGNAL_COUNT; j++) { // for each signal type
@@ -29,6 +28,30 @@ public class StateMachine {
 
 	public void setTransition(State oldState, Signal signal, State newState, BiConsumer<State, Signal> newStateFunction) {
 		transitions.get(oldState.state).set(signal.signal, new Pair<>(newState, newStateFunction));
+	}
+
+	/**
+	 * add another state type to the machine. the newState *must* have a new underlying number exactly one above the last state
+	 * @return the new state number
+	 */
+	public void addState(State newState) {
+		Pair<State, BiConsumer<State, Signal>> p = new Pair<>(newState, this::n); // default transition to same state
+		List<Pair<State, BiConsumer<State, Signal>>> listToAdd = new ArrayList<>();
+		for (int j = 0; j < transitions.get(0).size(); j++) { // for each signal type
+			listToAdd.add(p);
+		}
+		transitions.add(listToAdd);
+	}
+
+	/**
+	 * add another signal type to the machine. the newSignal will have a new underlying number exactly one above the last signal
+	 * @param newState
+	 */
+	public void addSignal() {
+		for (int i = 0; i < transitions.size(); i++) {
+			Pair<State, BiConsumer<State, Signal>> p = new Pair<>(new State(i), this::n);
+			transitions.get(i).add(p);
+		}
 	}
 
 	public void transition(Signal s) {
@@ -99,7 +122,7 @@ public class StateMachine {
 		public static final int NIGHT_CCT = 5;
 		public static final int NIGHT_COLOR = 6;
 		
-		public static final int SIGNAL_COUNT = 7;
+		public static final int STATE_COUNT = 7;
 	}
 
 	public static class Signal {

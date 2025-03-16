@@ -7,6 +7,8 @@ import smartLights.LightState;
 import smartLights.RoomState;
 
 // Maybe this class shouldn't exist, and instead we should create more specific dimmers...
+// Or maybe this class can provide a way to modify the list, (placeholders maybe?)
+// or maybe I suck it up and make a ListDimmerFactory...
 public class ListDimmer implements Dimmer {
 	protected List<RoomState> roomStates;
 	protected int currentIndex = 0;
@@ -30,6 +32,14 @@ public class ListDimmer implements Dimmer {
 
 	public ListDimmer(List<RoomState> roomStates) {
 		this.roomStates = roomStates;
+	}
+
+	/**
+	 * Generic constructor that creates an empty roomStates list.
+	 * roomStates must be populated manually after this
+	 */
+	protected ListDimmer() {
+		roomStates = new ArrayList<>();
 	}
 
 	public RoomState dimUp() {
@@ -58,7 +68,7 @@ public class ListDimmer implements Dimmer {
 		return getRoomState();
 	}
 
-	public RoomState getRoomState() { // TODO this should handle daylight color temp (make a new class DaylightDimmer for that actually)
+	public RoomState getRoomState() {
 		return roomStates.get(currentIndex);
 	}
 
@@ -67,7 +77,7 @@ public class ListDimmer implements Dimmer {
 	 * This implementation starts on max brightness
 	 */
 	public RoomState firstOn() {
-		currentIndex = 0;
+		currentIndex = roomStates.size() - 1;
 		return getRoomState();
 	}
 

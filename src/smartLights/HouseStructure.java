@@ -22,6 +22,7 @@ public class HouseStructure {
     private static LoungeController lounge;
     private static KitchenController kitchen;
     private static LoftController loft;
+    @SuppressWarnings("unused")
     private static LoftSecondController loft2;
     private static BathController bath;
     private static StudyController study;

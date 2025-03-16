@@ -12,6 +12,7 @@ import smartLights.SmartRandom;
 import smartLights.StateMachine;
 import smartLights.StateMachine.Signal;
 import smartLights.StateMachine.State;
+import smartLights.dimmers.ColorDimmer;
 import smartLights.dimmers.DaylightDimmer;
 import smartLights.dimmers.Dimmer;
 import smartLights.dimmers.ListDimmer;
@@ -32,7 +33,7 @@ public abstract class LightController implements IMqttMessageListener {
 
     protected Dimmer currentDimmer;
     protected DaylightDimmer daylightDimmer;
-    protected ListDimmer colorDimmer;
+    protected ColorDimmer colorDimmer;
     protected ListDimmer nightDimmer;
     // protected LightState offState = new LightState(0, 0); // object to send when the light needs to be off
     protected String offStateMessage = "OFF"; // string to send when the light needs to be off
@@ -205,35 +206,9 @@ public abstract class LightController implements IMqttMessageListener {
     public void setCCT(int cct) {
         daylightDimmer.setCCT(cct);
 
-        if (!stateMachine.isAnyOff()) {
+        if (stateMachine.isAnyOn()) {
             broadcastRoomState(); // will only change anything if the current dimmer is the daylight dimmer
         }
-    }
-
-    // TODO move these into the color mode state machine transitions
-    // perhaps create a new listDimmer randomly?
-    public void startColorMode() {
-        // generalLightState.setMode(LightState.Mode.COLOR);
-        // generalLightState.setHue(random.getRandomInt() * 60); //TODO make this better lol (yellow sucks)
-        // generalLightState.setSaturation(70);
-        // if (isOn) {
-        //     System.out.print("color " + generalLightState.getHue() + " ...");
-        //     broadcastAll(generalLightState.getFullString());
-        //     System.out.println("done");
-        // }
-        // else {
-        //     generalLightState.setDimSetting(1);
-        //     setBrightness();
-        //     isOn = true;
-        // }
-
-    }
-    // are these needed?
-    public void stopColorMode() {
-        // System.out.print("color off ...");
-        // generalLightState.setMode(LightState.Mode.CCT);
-        // broadcastAll(generalLightState.getFullString());
-        // System.out.println("done");
     }
 
     /*
@@ -344,7 +319,7 @@ public abstract class LightController implements IMqttMessageListener {
                 System.out.println("WARNING: entered Color state with a weird signal: " + signal.signal);
                 break;
         }
-        //TODO should I refresh to a new random color right here?
+        colorDimmer.generateNewScheme();
         currentDimmer = colorDimmer;
         broadcastRoomState();
 	}
@@ -376,6 +351,7 @@ public abstract class LightController implements IMqttMessageListener {
 
 	protected void enterNightColor(State oldState, Signal signal) {
         colorDimmer.setIndex(currentDimmer.getCurrentIndex());
+        colorDimmer.generateNewScheme();
         currentDimmer = colorDimmer;
         broadcastRoomState();
 	}
@@ -509,7 +485,7 @@ public abstract class LightController implements IMqttMessageListener {
     protected void generateDimmers() {
         Set<String> lightNames = lightTopics.keySet();
         daylightDimmer = new DaylightDimmer(lightNames);
-        colorDimmer = new ListDimmer(lightNames);
+        colorDimmer = new ColorDimmer(lightNames);
 
         // create a list of red color room states
         List<RoomState> roomStates = new ArrayList<>();

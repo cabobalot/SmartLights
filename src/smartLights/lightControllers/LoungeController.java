@@ -2,6 +2,7 @@ package smartLights.lightControllers;
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 
 import smartLights.HouseStructure;
+import smartLights.dimmers.ColorDimmer;
 
 
 public class LoungeController extends LightController {
@@ -15,6 +16,7 @@ public class LoungeController extends LightController {
         registerLightTopic("Lounge3", "zigbee2mqtt/LoungeLight3/set");
 
         generateDimmers();
+        // colorDimmer = new ColorDimmer(lightTopics.keySet());
 
         try {
             Thread.sleep(500);
