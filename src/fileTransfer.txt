@@ -1,1 +1,1 @@
-scp /home/casey/Documents/programming/IdeaProjects/SmartLights/out/artifacts/SmartLights_jar/SmartLights.jar openhabian@192.168.1.20:/home/openhabian
+scp ~/Documents/programming/SmartLights/SmartLights.jar openhabian@openhabian.local:/home/openhabian
