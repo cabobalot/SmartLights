@@ -25,6 +25,7 @@ bin/
 ### VS Code ###
 .vscode/
 lib/
+SmartLights.jar
 
 ### Mac OS ###
 .DS_Store
