@@ -23,6 +23,7 @@ public class ColorDimmer extends ListDimmer {
 	 */
 	public ColorDimmer(Set<String> lightNames) {
 		this.lightNames = lightNames;
+		startIndex = 1;
 
 		brightnesses = new ArrayList<>();
 		for (int i = 0; i < niceBrightnesses.length; i++) {
@@ -45,6 +46,8 @@ public class ColorDimmer extends ListDimmer {
 		this.lightNames = lightNames;
 		this.brightnesses = brightnesses;
 
+		startIndex = 1;
+
 		generateNewScheme();
 	}
 
@@ -63,12 +66,4 @@ public class ColorDimmer extends ListDimmer {
 			roomStates.add(room);
 		}
 	}
-
-	@Override
-	public RoomState firstOn() {
-		currentIndex = 1;
-		return getRoomState();
-	}
-
-
 }

@@ -13,6 +13,8 @@ public class ListDimmer implements Dimmer {
 	protected List<RoomState> roomStates;
 	protected int currentIndex = 0;
 
+	protected int startIndex = 0;
+
 	/**
 	 * create a generic dimming list in magenta
 	 * @param lightNames
@@ -28,15 +30,22 @@ public class ListDimmer implements Dimmer {
 			}
 			roomStates.add(room);
 		}
+		this.startIndex = roomStates.size() - 1;
 	}
 
 	public ListDimmer(List<RoomState> roomStates) {
 		this.roomStates = roomStates;
+		this.startIndex = roomStates.size() - 1;
+	}
+
+	public ListDimmer(List<RoomState> roomStates, int startIndex) {
+		this.roomStates = roomStates;
+		this.startIndex = startIndex;
 	}
 
 	/**
 	 * Generic constructor that creates an empty roomStates list.
-	 * roomStates must be populated manually after this
+	 * roomStates must be populated manually after this.
 	 */
 	protected ListDimmer() {
 		roomStates = new ArrayList<>();
@@ -74,10 +83,10 @@ public class ListDimmer implements Dimmer {
 
 	/**
 	 * {@inheritDoc} <p>
-	 * This implementation starts on max brightness
+	 * This implementation starts on max brightness, unless another value is passed into the constructor
 	 */
 	public RoomState firstOn() {
-		currentIndex = roomStates.size() - 1;
+		currentIndex = startIndex;
 		return getRoomState();
 	}
 

@@ -2,9 +2,12 @@ package smartLights.lightControllers;
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 
 import smartLights.HouseStructure;
+import smartLights.LightState;
+import smartLights.RoomState;
 import smartLights.dimmers.ColorDimmer;
 import smartLights.dimmers.DaylightDimmer;
 import smartLights.dimmers.Dimmer;
+import smartLights.dimmers.ListDimmer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,6 +40,23 @@ public class LoftController extends LightController {
 		}
         daylightDimmer = new DaylightDimmer(lightNames, brightnesses);
         colorDimmer = new ColorDimmer(lightNames, brightnesses);
+
+        // create a list of red color room states
+        List<RoomState> roomStates = new ArrayList<>();
+		for (int i = 0; i < 4; i++) {
+			RoomState room = new RoomState();
+			// create one state object and duplicate the pointer for every light
+			LightState state = new LightState(Dimmer.niceBrightnesses[i], 0, 100);
+			for (String name : lightNames) {
+                if (i == 0 && name.equals("Loft1")) {
+                    room.lightStates.put(name, new LightState(0, 0,100)); // one light off at lowest dim
+                    continue;
+                }
+				room.lightStates.put(name, state);
+			}
+			roomStates.add(room);
+		}
+        nightDimmer = new ListDimmer(roomStates, 0);
 
 
         try {

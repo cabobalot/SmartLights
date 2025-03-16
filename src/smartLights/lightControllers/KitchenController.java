@@ -96,7 +96,7 @@ public class KitchenController extends LightController {
 
     private void enterCocktailMode(State state, Signal signal) {
         cocktailDimmer.setIndex(currentDimmer.getCurrentIndex());
-        cocktailDimmer.setHue(random.getRandomInt() * 6);
+        cocktailDimmer.setHue(random.getRandomInt() * 60);
         currentDimmer = cocktailDimmer;
         broadcastRoomState();
     }

@@ -498,7 +498,7 @@ public abstract class LightController implements IMqttMessageListener {
 			}
 			roomStates.add(room);
 		}
-        nightDimmer = new ListDimmer(roomStates);
+        nightDimmer = new ListDimmer(roomStates, 0);
 
         currentDimmer = daylightDimmer;
     }
