@@ -10,14 +10,28 @@ public class CocktailModeDimmer implements Dimmer {
 	private Set<String> primaryNames;
 	private Set<String> secondaryNames;
 
+	private int[] myPrimaryBrightnesses;
+	private int[] mySecondaryBrightnesses;
+
 	private int hue = 0;
 	private int cct = 500;
 
-	public static final int[] secondaryBrightnesses = {0, 5, 50, 100}; 
+	public static final int[] niceSecondaryBrightnesses = {5, 10, 50, 100};
 
 	public CocktailModeDimmer(Set<String> primaryNames, Set<String> secondaryNames) {
 		this.primaryNames = primaryNames;
 		this.secondaryNames = secondaryNames;
+
+		myPrimaryBrightnesses = niceBrightnesses;
+		mySecondaryBrightnesses = niceSecondaryBrightnesses;
+	}
+	
+	public void setMyPrimaryBrightnesses(int[] myPrimaryBrightnesses) {
+		this.myPrimaryBrightnesses = myPrimaryBrightnesses;
+	}
+
+	public void setMySecondaryBrightnesses(int[] mySecondaryBrightnesses) {
+		this.mySecondaryBrightnesses = mySecondaryBrightnesses;
 	}
 
 	public void setCCT(int cct) {
@@ -31,8 +45,8 @@ public class CocktailModeDimmer implements Dimmer {
 	@Override
 	public RoomState dimUp() {
 		currentIndex++;
-		if (currentIndex >= niceBrightnesses.length) {
-			currentIndex = niceBrightnesses.length - 1; 
+		if (currentIndex >= myPrimaryBrightnesses.length) {
+			currentIndex = myPrimaryBrightnesses.length - 1; 
 		}
 		return getRoomState();
 	}
@@ -48,7 +62,7 @@ public class CocktailModeDimmer implements Dimmer {
 
 	@Override
 	public RoomState dimMax() {
-		currentIndex = niceBrightnesses.length - 1;
+		currentIndex = myPrimaryBrightnesses.length - 1;
 		return getRoomState();
 	}
 
@@ -60,7 +74,7 @@ public class CocktailModeDimmer implements Dimmer {
 
 	@Override
 	public RoomState firstOn() {
-		currentIndex = niceBrightnesses.length - 1; 
+		currentIndex = myPrimaryBrightnesses.length - 1; 
 		return getRoomState();
 	}
 
@@ -72,12 +86,12 @@ public class CocktailModeDimmer implements Dimmer {
 		RoomState room = new RoomState();
 		
 		for (String name : primaryNames) {
-			LightState state = new LightState(niceBrightnesses[currentIndex], cct);
+			LightState state = new LightState(myPrimaryBrightnesses[currentIndex], cct);
 			room.lightStates.put(name, state);
 		}
 
 		for (String name : secondaryNames) {
-			LightState state = new LightState(secondaryBrightnesses[currentIndex], hue, 100);
+			LightState state = new LightState(mySecondaryBrightnesses[currentIndex], hue, 100);
 			room.lightStates.put(name, state);
 		}
 

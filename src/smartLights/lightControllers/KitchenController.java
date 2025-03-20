@@ -91,7 +91,6 @@ public class KitchenController extends LightController {
             discoThread.start();
             System.out.println("Disco mode on :)");
         }
-
     }
 
     private void enterCocktailMode(State state, Signal signal) {
