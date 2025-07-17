@@ -1,0 +1,24 @@
+{
+	"brightnesses" : [
+		{
+			"Lounge1" : {"mode" : "CCT", "brightness" : 5, "colorTemp": 150},
+			"Lounge2" : {"mode" : "CCT", "brightness" : 5, "colorTemp": 150},
+			"Lounge2" : {"mode" : "CCT", "brightness" : 5, "colorTemp": 150}
+		},
+		{
+			"Lounge1" : {"mode" : "CCT", "brightness" : 20, "colorTemp": "dayshift"},
+			"Lounge2" : {"mode" : "CCT", "brightness" : 20, "colorTemp": "dayshift"},
+			"Lounge2" : {"mode" : "CCT", "brightness" : 20, "colorTemp": "dayshift"}
+		},
+		{
+			"Lounge1" : {"mode" : "CCT", "brightness" : 100, "colorTemp": 150},
+			"Lounge2" : {"mode" : "CCT", "brightness" : 100, "colorTemp": 150},
+			"Lounge2" : {"mode" : "CCT", "brightness" : 100, "colorTemp": 150}
+		},
+		{
+			"Lounge1" : {"mode" : "CCT", "brightness" : 230, "colorTemp": 150},
+			"Lounge2" : {"mode" : "CCT", "brightness" : 230, "colorTemp": 150},
+			"Lounge2" : {"mode" : "CCT", "brightness" : 230, "colorTemp": 150}
+		}
+	]
+}
