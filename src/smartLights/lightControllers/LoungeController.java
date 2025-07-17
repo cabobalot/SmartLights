@@ -16,7 +16,7 @@ public class LoungeController extends LightController {
     private SmartRandom random = new SmartRandom(6, 3);
     private static int STATE_MOVIE = State.STATE_COUNT;
 
-    //mosquitto_pub -h 192.168.1.20 -t "zigbee2mqtt/LoftSwitch/action" -m "1_single"
+    //mosquitto_pub -h 192.168.1.20 -t "zigbee2mqtt/LoungeSwitch/action" -m "1_single"
     public LoungeController(MqttAsyncClient client) {
         super(client, "zigbee2mqtt/LoungeSwitch/action");
 

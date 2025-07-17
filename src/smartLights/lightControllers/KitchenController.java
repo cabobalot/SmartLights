@@ -16,8 +16,10 @@ public class KitchenController extends LightController {
     private boolean discoRunning = false;
 
     private CocktailModeDimmer cocktailDimmer;
+    private CocktailModeDimmer chopDimmer;
     private SmartRandom random = new SmartRandom(6, 3);
     private static int STATE_COCKTAIL = State.STATE_COUNT;
+    private static int STATE_CHOP = State.STATE_COUNT + 1;
 
     public KitchenController(MqttAsyncClient client) {
         super(client, "zigbee2mqtt/KitchenSwitch/action");
@@ -32,8 +34,10 @@ public class KitchenController extends LightController {
         generateDimmers();
 
         cocktailDimmer = new CocktailModeDimmer(Set.of("Kitchen4", "Kitchen5"), Set.of("Kitchen1", "Kitchen2", "Kitchen3", "KitchenCabinet"));
+        chopDimmer = new CocktailModeDimmer(Set.of("KitchenCabinet"), Set.of("Kitchen1", "Kitchen2", "Kitchen3", "Kitchen4", "Kitchen5"));
 
         State cocktailState = new State(STATE_COCKTAIL);
+        State chopState = new State(STATE_CHOP);
         Signal offSignal = new Signal(Signal.OFF);
         Signal nextSpecialSignal = new Signal(Signal.NEXT_SPECIAL);
         Signal enterNightSignal = new Signal(Signal.ENTER_NIGHT);
@@ -54,11 +58,25 @@ public class KitchenController extends LightController {
         stateMachine.setTransition(cocktailState, offSignal, offState, this::enterOFF);
         stateMachine.setTransition(cocktailState, enterNightSignal, nightOffState, this::enterNightOff);
         stateMachine.setTransition(cocktailState, nextSpecialSignal, cctState, this::enterCCT);
+
+        // to chop state
+        stateMachine.setTransition(cocktailState, nextSpecialSignal, chopState, this::enterChopMode);
+
+        stateMachine.setTransition(chopState, offSignal, offState, this::enterOFF);
+        stateMachine.setTransition(chopState, enterNightSignal, nightOffState, this::enterNightOff);
+        stateMachine.setTransition(chopState, nextSpecialSignal, cctState, this::enterCCT);
+
         // loopback dim signals
         stateMachine.setTransition(cocktailState, dimMaxSignal, cocktailState, this::dimMax);
         stateMachine.setTransition(cocktailState, dimMinSignal, cocktailState, this::dimMin);
         stateMachine.setTransition(cocktailState, dimUpSignal, cocktailState, this::dimUp);
         stateMachine.setTransition(cocktailState, dimDownSignal, cocktailState, this::dimDown);
+
+        stateMachine.setTransition(chopState, dimMaxSignal, chopState, this::dimMax);
+        stateMachine.setTransition(chopState, dimMinSignal, chopState, this::dimMin);
+        stateMachine.setTransition(chopState, dimUpSignal, chopState, this::dimUp);
+        stateMachine.setTransition(chopState, dimDownSignal, chopState, this::dimDown);
+
 
         try {
             Thread.sleep(500);
@@ -97,6 +115,13 @@ public class KitchenController extends LightController {
         cocktailDimmer.setIndex(currentDimmer.getCurrentIndex());
         cocktailDimmer.setHue(random.getRandomInt() * 60);
         currentDimmer = cocktailDimmer;
+        broadcastRoomState();
+    }
+
+    private void enterChopMode(State state, Signal signal) {
+        chopDimmer.setIndex(currentDimmer.getCurrentIndex());
+        chopDimmer.setHue(random.getRandomInt() * 60);
+        currentDimmer = chopDimmer;
         broadcastRoomState();
     }
 
