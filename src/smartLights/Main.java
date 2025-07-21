@@ -77,5 +77,6 @@ mosquitto_pub -h "192.168.1.20" -t "zigbee2mqtt/Kitchen/set" -m '{"color":{"hue"
 //white
 mosquitto_pub -h "192.168.1.20" -t "zigbee2mqtt/Kitchen/set" -m '{"color_temp":325, "brightness":80}'
 
+{"color":{"hue":360,"saturation":100}, "brightness":100}
 
  */

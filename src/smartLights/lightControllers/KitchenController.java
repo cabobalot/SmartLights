@@ -51,6 +51,7 @@ public class KitchenController extends LightController {
         State colorState = new State(State.COLOR);
         State nightOffState = new State(State.NIGHT_OFF);
         stateMachine.addState(cocktailState);
+        stateMachine.addState(chopState);
 
         // to cocktail state
         stateMachine.setTransition(colorState, nextSpecialSignal, cocktailState, this::enterCocktailMode);
@@ -92,6 +93,7 @@ public class KitchenController extends LightController {
     @Override
     public void setCCT(int cct) {
         cocktailDimmer.setCCT(cct);
+        chopDimmer.setCCT(cct);
         super.setCCT(cct);
     }
 
