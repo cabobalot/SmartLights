@@ -8,6 +8,7 @@ import smartLights.dimmers.ColorDimmer;
 import smartLights.dimmers.DaylightDimmer;
 import smartLights.dimmers.Dimmer;
 import smartLights.dimmers.ListDimmer;
+import smartLights.dimmers.SunriseDimmer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,6 +25,8 @@ public class LoftController extends LightController {
         registerLightTopic("Loft2", "zigbee2mqtt/LoftLight2/set");
 
         generateDimmers(); // generate defaults and then replace them below
+
+        sunriseDimmer = new SunriseDimmer(List.of("Loft2", "Loft1"), 8);
 
         Set<String> lightNames = lightTopics.keySet();
         List<Map<String, Integer>> brightnesses = new ArrayList<>();

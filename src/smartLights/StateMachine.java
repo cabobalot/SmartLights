@@ -121,8 +121,9 @@ public class StateMachine {
 		public static final int NIGHT_ON = 4;
 		public static final int NIGHT_CCT = 5;
 		public static final int NIGHT_COLOR = 6;
+		public static final int SUNRISE = 7;
 		
-		public static final int STATE_COUNT = 7;
+		public static final int STATE_COUNT = 8;
 	}
 
 	public static class Signal {
@@ -160,8 +161,9 @@ public class StateMachine {
 		public static final int DIM_DOWN = 6;
 		public static final int DIM_MIN = 7;
 		public static final int DIM_MAX = 8;
+		public static final int ENTER_SUNRISE = 9;
 
-		public static final int SIGNAL_COUNT = 9;
+		public static final int SIGNAL_COUNT = 10;
 	}
 
 	public class Pair<A, B> {

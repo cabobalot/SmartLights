@@ -16,7 +16,9 @@ import smartLights.dimmers.ColorDimmer;
 import smartLights.dimmers.DaylightDimmer;
 import smartLights.dimmers.Dimmer;
 import smartLights.dimmers.ListDimmer;
+import smartLights.dimmers.SunriseDimmer;
 
+import java.time.format.SignStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -35,6 +37,9 @@ public abstract class LightController implements IMqttMessageListener {
     protected DaylightDimmer daylightDimmer;
     protected ColorDimmer colorDimmer;
     protected ListDimmer nightDimmer;
+
+    protected SunriseDimmer sunriseDimmer;
+
     // protected LightState offState = new LightState(0, 0); // object to send when the light needs to be off
     protected String offStateMessage = "OFF"; // string to send when the light needs to be off
 
@@ -201,6 +206,13 @@ public abstract class LightController implements IMqttMessageListener {
     }
 
     /**
+     * send the enter sunrise signal to the state machine
+     */
+    public void setSunriseMode() {
+        stateMachine.transition(new Signal(Signal.ENTER_SUNRISE));
+    }
+
+    /**
      * Broadcast the daylight CCT if in CCT mode.
      */
     public void setCCT(int cct) {
@@ -210,6 +222,15 @@ public abstract class LightController implements IMqttMessageListener {
             broadcastRoomState(); // will only change anything if the current dimmer is the daylight dimmer
         }
     }
+
+    public void setSunriseMinute(int minute) {
+        sunriseDimmer.setMinute(minute);
+        
+        if (stateMachine.isAnyOn()) {
+            broadcastRoomState();
+        }
+    }
+
 
     /*
      * broadcast mqtt messages
@@ -326,6 +347,9 @@ public abstract class LightController implements IMqttMessageListener {
 
 	protected void enterNightOff(State oldState, Signal signal) {
         // System.out.print("Night off ...");
+        if (oldState.state == State.SUNRISE) {
+            currentDimmer = nightDimmer;
+        }
         broadcastAll(offStateMessage);
         // System.out.println("done");
 	}
@@ -355,6 +379,11 @@ public abstract class LightController implements IMqttMessageListener {
         currentDimmer = colorDimmer;
         broadcastRoomState();
 	}
+
+    protected void enterSunrise(State oldState, Signal signal) {
+        currentDimmer = sunriseDimmer;
+        broadcastRoomState();
+    }
 
     /**
      * just dim the current dimmer
@@ -398,6 +427,7 @@ public abstract class LightController implements IMqttMessageListener {
         Signal dimDownSignal = new Signal(Signal.DIM_DOWN);
         Signal dimMinSignal = new Signal(Signal.DIM_MIN);
         Signal dimMaxSignal = new Signal(Signal.DIM_MAX);
+        Signal enterSunriseSignal = new Signal(Signal.ENTER_SUNRISE);
 
         State offState = new State(State.OFF);
         State cctState = new State(State.CCT);
@@ -406,6 +436,7 @@ public abstract class LightController implements IMqttMessageListener {
         State nightOnState = new State(State.NIGHT_ON);
         State nightCCTState = new State(State.NIGHT_CCT);
         State nightColorState = new State(State.NIGHT_COLOR);
+        State sunriseState = new State(State.SUNRISE);
 
 
         // all the state transitions:
@@ -446,6 +477,7 @@ public abstract class LightController implements IMqttMessageListener {
         stateMachine.setTransition(nightOffState, dimMinSignal, nightOnState, this::enterNightOn);
         stateMachine.setTransition(nightOffState, dimUpSignal, nightOnState, this::enterNightOn);
         stateMachine.setTransition(nightOffState, dimDownSignal, nightOnState, this::enterNightOn);
+        stateMachine.setTransition(nightOffState, enterSunriseSignal, sunriseState, this::enterSunrise);
 
 		// NIGHT_ON
         stateMachine.setTransition(nightOnState, offSignal, nightOffState, this::enterNightOff);
@@ -476,6 +508,14 @@ public abstract class LightController implements IMqttMessageListener {
         stateMachine.setTransition(nightColorState, dimMinSignal, nightColorState, this::dimMin);
         stateMachine.setTransition(nightColorState, dimUpSignal, nightColorState, this::dimUp);
         stateMachine.setTransition(nightColorState, dimDownSignal, nightColorState, this::dimDown);
+
+        // SUNRISE
+        stateMachine.setTransition(sunriseState, offSignal, nightOffState, this::enterOFF);
+        stateMachine.setTransition(sunriseState, exitNightSignal, cctState, this::enterCCT);
+        stateMachine.setTransition(sunriseState, dimMaxSignal, cctState, this::enterCCT);
+        stateMachine.setTransition(sunriseState, dimMinSignal, cctState, this::enterCCT);
+        stateMachine.setTransition(sunriseState, dimUpSignal, cctState, this::enterCCT);
+        stateMachine.setTransition(sunriseState, dimDownSignal, cctState, this::enterCCT);
     }
 
     /**

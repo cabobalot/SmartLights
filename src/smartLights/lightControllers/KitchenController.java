@@ -5,8 +5,10 @@ import smartLights.SmartRandom;
 import smartLights.StateMachine.Signal;
 import smartLights.StateMachine.State;
 import smartLights.dimmers.CocktailModeDimmer;
+import smartLights.dimmers.SunriseDimmer;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,6 +37,8 @@ public class KitchenController extends LightController {
 
         cocktailDimmer = new CocktailModeDimmer(Set.of("Kitchen4", "Kitchen5"), Set.of("Kitchen1", "Kitchen2", "Kitchen3", "KitchenCabinet"));
         chopDimmer = new CocktailModeDimmer(Set.of("KitchenCabinet"), Set.of("Kitchen1", "Kitchen2", "Kitchen3", "Kitchen4", "Kitchen5"));
+
+        sunriseDimmer = new SunriseDimmer(List.of("Kitchen4", "Kitchen2", "Kitchen5", "Kitchen1", "KitchenCabinet", "Kitchen3"), 3);
 
         State cocktailState = new State(STATE_COCKTAIL);
         State chopState = new State(STATE_CHOP);

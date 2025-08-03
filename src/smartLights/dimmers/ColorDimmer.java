@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import smartLights.LightState;
@@ -14,6 +15,8 @@ public class ColorDimmer extends ListDimmer {
 	private Set<String> lightNames;
 	private List<Map<String, Integer>> brightnesses;
 	private SmartRandom random = new SmartRandom(6, 3);
+
+	private Random badRandom = new Random();
 
 	public static final int[] niceSaturations = {100, 90, 80, 70};
 
@@ -60,7 +63,7 @@ public class ColorDimmer extends ListDimmer {
 			RoomState room = new RoomState();
 			
 			for (String name : lightNames) {
-				LightState state = new LightState(brightnesses.get(i).get(name), hue, niceSaturations[i]);
+				LightState state = new LightState(brightnesses.get(i).get(name), (hue + (badRandom.nextInt(2) * 45)) % 360, niceSaturations[i]);
 				room.lightStates.put(name, state);
 			}
 			roomStates.add(room);

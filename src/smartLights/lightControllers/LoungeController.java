@@ -1,4 +1,5 @@
 package smartLights.lightControllers;
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
@@ -8,6 +9,7 @@ import smartLights.SmartRandom;
 import smartLights.StateMachine.Signal;
 import smartLights.StateMachine.State;
 import smartLights.dimmers.CocktailModeDimmer;
+import smartLights.dimmers.SunriseDimmer;
 
 
 public class LoungeController extends LightController {
@@ -28,6 +30,8 @@ public class LoungeController extends LightController {
         
         movieDimmer = new CocktailModeDimmer(Set.of("Lounge3"), Set.of("Lounge1", "Lounge2"));
         movieDimmer.setMySecondaryBrightnesses(new int[] {0, 0, 0, 0});
+
+        sunriseDimmer = new SunriseDimmer(List.of("Lounge3", "Lounge1", "Lounge2"), 0);
 
         State movieState = new State(STATE_MOVIE);
         Signal offSignal = new Signal(Signal.OFF);
@@ -83,5 +87,11 @@ public class LoungeController extends LightController {
     @Override
     public void upLeftLong() {
         HouseStructure.wholeHouseOff();
+    }
+
+    @Override
+    public void downLeftDouble() {
+        Thread sun = new Thread(HouseStructure::doSunrise);
+        sun.start();
     }
 }

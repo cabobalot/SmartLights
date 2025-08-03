@@ -1,9 +1,12 @@
 package smartLights.lightControllers;
+import java.util.List;
+
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import smartLights.Main;
+import smartLights.dimmers.SunriseDimmer;
 
 public class BathController extends LightController {
 
@@ -20,6 +23,8 @@ public class BathController extends LightController {
         registerRelayTopic("BathFan", bathFanTopic);
 
         generateDimmers();
+
+        sunriseDimmer = new SunriseDimmer(List.of("Bath1", "Bath2", "BathVanity"), 9);
 
         try {
             Thread.sleep(500);
