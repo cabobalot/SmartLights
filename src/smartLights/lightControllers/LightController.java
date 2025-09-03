@@ -213,6 +213,14 @@ public abstract class LightController implements IMqttMessageListener {
     }
 
     /**
+     * call when the sunrise finishes
+     */
+    public void finishSunrise() {
+        stateMachine.transition(new Signal(Signal.NEXT_SPECIAL));
+        stateMachine.transition(new Signal(Signal.EXIT_NIGHT));
+    }
+
+    /**
      * Broadcast the daylight CCT if in CCT mode.
      */
     public void setCCT(int cct) {
@@ -289,6 +297,9 @@ public abstract class LightController implements IMqttMessageListener {
 
     protected void enterOFF(State oldState, Signal s) {
         System.out.print("Light off ...");
+        if (oldState.state == State.SUNRISE) {
+            currentDimmer = daylightDimmer;
+        }
         broadcastAll(offStateMessage);
         System.out.println("done");
 	}
@@ -510,8 +521,9 @@ public abstract class LightController implements IMqttMessageListener {
         stateMachine.setTransition(nightColorState, dimDownSignal, nightColorState, this::dimDown);
 
         // SUNRISE
-        stateMachine.setTransition(sunriseState, offSignal, nightOffState, this::enterOFF);
-        stateMachine.setTransition(sunriseState, exitNightSignal, cctState, this::enterCCT);
+        stateMachine.setTransition(sunriseState, offSignal, nightOffState, this::enterNightOff);
+        stateMachine.setTransition(sunriseState, exitNightSignal, offState, this::enterOFF);
+        stateMachine.setTransition(sunriseState, nextSpecialSignal, cctState, this::enterCCT);
         stateMachine.setTransition(sunriseState, dimMaxSignal, cctState, this::enterCCT);
         stateMachine.setTransition(sunriseState, dimMinSignal, cctState, this::enterCCT);
         stateMachine.setTransition(sunriseState, dimUpSignal, cctState, this::enterCCT);

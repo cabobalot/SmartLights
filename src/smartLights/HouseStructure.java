@@ -27,6 +27,8 @@ public class HouseStructure {
     private static BathController bath;
     private static StudyController study;
 
+    private static WebMessageListener webListener;
+
     private static Timer timer = new Timer();
     private static TimerTask CCTTask = new TimerTask () {
         @Override
@@ -49,6 +51,8 @@ public class HouseStructure {
         loft2 = new LoftSecondController(mqttClient, loft);
         bath = new BathController(mqttClient);
         study = new StudyController(mqttClient);
+
+        webListener = new WebMessageListener(mqttClient);
 
         timer.scheduleAtFixedRate(CCTTask, 0, 1000*60*15); // every 15 minutes
         
@@ -110,7 +114,11 @@ public class HouseStructure {
                 e.printStackTrace();
             }
         }
-        exitNightMode();
+        lounge.finishSunrise();
+        kitchen.finishSunrise();
+        loft.finishSunrise();
+        bath.finishSunrise();
+        study.finishSunrise();
         System.out.println("sunrise done");
     } 
 
@@ -125,7 +133,7 @@ public class HouseStructure {
             rise = sunrise.get(Calendar.HOUR_OF_DAY) + (sunrise.get(Calendar.MINUTE) / 60.0);
         }
         else {
-            rise = 7.5;
+            rise = webListener.getSunriseTime();
         }
         
         double set = sunset.get(Calendar.HOUR_OF_DAY) + (sunset.get(Calendar.MINUTE) / 60.0);

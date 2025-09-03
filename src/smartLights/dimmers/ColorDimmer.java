@@ -18,7 +18,7 @@ public class ColorDimmer extends ListDimmer {
 
 	private Random badRandom = new Random();
 
-	public static final int[] niceSaturations = {100, 90, 80, 70};
+	public static final int[] niceSaturations = {100, 100, 90, 80};
 
 	/**
 	 * create with the same brightness profile for every light.
@@ -58,12 +58,17 @@ public class ColorDimmer extends ListDimmer {
 	public void generateNewScheme() {
 		int hue = random.getRandomInt() * 60;
 
+		HashMap<String, Integer> lightColorChoices = new HashMap<>();
+		for (String name : lightNames) {
+			lightColorChoices.put(name, badRandom.nextInt(2));
+		}
+
 		roomStates = new ArrayList<>();
 		for (int i = 0; i < brightnesses.size(); i++) {
 			RoomState room = new RoomState();
 			
 			for (String name : lightNames) {
-				LightState state = new LightState(brightnesses.get(i).get(name), (hue + (badRandom.nextInt(2) * 45)) % 360, niceSaturations[i]);
+				LightState state = new LightState(brightnesses.get(i).get(name), (hue + lightColorChoices.get(name) * 45) % 360, niceSaturations[i]);
 				room.lightStates.put(name, state);
 			}
 			roomStates.add(room);
